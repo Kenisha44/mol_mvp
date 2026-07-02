@@ -1,0 +1,34 @@
+🎫 Ticket #004
+Feature: Dashboard Narrative Generator
+
+Objective
+------------
+What problem does it solve?
+
+User Flow
+------------
+How does the user interact with it?
+
+Files
+------------
+Exactly which files will be created or modified.
+
+Backend
+------------
+Schemas
+Service
+Routes
+
+Frontend
+------------
+Component
+API
+Display
+
+Testing
+------------
+What should be verified before committing?
+
+Commit Message
+------------
+Suggested Git commit message.
