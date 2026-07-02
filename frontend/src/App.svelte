@@ -1,11 +1,6 @@
 <script>
-  const API_BASE = 'http://127.0.0.1:8000';
-
-  const tools = [
-    { id:'clarity', label:'Clarity Analyzer', endpoint:'/clarity', eyebrow:'TOOL 01', title:'Executive Clarity Analyzer', description:'Turn messy report copy, slide bullets, and notes into sharper executive-ready direction.', placeholder:'Paste report text, slide bullets, or meeting notes...', emptyTitle:'Paste messy executive text.', emptyBody:'Use this for rough reports, board updates, slide bullets, meeting notes, or strategy summaries.', sample:'Sales increased in Q1 but customer churn also increased slightly. We launched two campaigns and the email campaign did better than expected. Support tickets are still high and leadership wants recommendations for next quarter.' },
-    { id:'kpi', label:'KPI Cleaner', endpoint:'/kpi-cleaner', eyebrow:'TOOL 02', title:'KPI Cleaner', description:'Standardize messy KPI names into polished, business-ready labels and categories.', placeholder:'Paste KPIs, one per line. Example: rev growth q1, cust churn, mrr...', emptyTitle:'Paste messy KPI names.', emptyBody:'Use this for raw dashboard labels, spreadsheet headers, reporting terms, and inconsistent metric names.', sample:'rev growth q1\ncust churn\nmrr growth\ncac\nprofit margin\nconv rate' },
-    { id:'insights', label:'Insight Generator', endpoint:'/insights', eyebrow:'TOOL 03', title:'Insight Generator Lite', description:'Generate executive insights, so-what statements, slide titles, and chart suggestions.', placeholder:'Paste data notes, observations, or a rough summary...', emptyTitle:'Paste raw data notes.', emptyBody:'Use this for trend notes, research findings, analyst observations, KPI changes, and report summaries.', sample:'Revenue increased 18% in Q1.\nCustomer churn increased 4%.\nMarketing costs decreased.\nSupport tickets increased after onboarding redesign.\nEnterprise accounts had the highest growth.' }
-  ];
+  import { tools } from './lib/tools.js';
+  import { apiPost } from './lib/api.js';
 
   let activeTool = tools[0];
   let inputText = '';
@@ -15,36 +10,86 @@
   let copiedLabel = '';
 
   function switchTool(tool) {
-    activeTool = tool; inputText = ''; result = null; error = ''; copiedLabel = '';
+    activeTool = tool;
+    inputText = '';
+    result = null;
+    error = '';
+    copiedLabel = '';
   }
 
-  function useSample() { inputText = activeTool.sample; error = ''; result = null; }
+  function useSample() {
+    inputText = activeTool.sample;
+    error = '';
+    result = null;
+  }
 
   async function runTool() {
-    if (!inputText.trim()) { error = 'Paste content first so MOL can analyze it.'; return; }
-    loading = true; error = ''; result = null; copiedLabel = '';
+    if (!inputText.trim()) {
+      error = 'Paste content first so MOL can analyze it.';
+      return;
+    }
+
+    loading = true;
+    error = '';
+    result = null;
+    copiedLabel = '';
+
     try {
-      const response = await fetch(`${API_BASE}${activeTool.endpoint}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: inputText })
-      });
-      if (!response.ok) throw new Error('Backend error');
-      result = await response.json();
+      result = await apiPost(activeTool.endpoint, { text: inputText });
     } catch (err) {
       error = 'Could not connect to the backend. Make sure FastAPI is running on http://127.0.0.1:8000.';
-    } finally { loading = false; }
+    } finally {
+      loading = false;
+    }
   }
 
   function outputText() {
     if (!result) return '';
-    if (activeTool.id === 'clarity') return [`Moon Onyx Labs — ${result.tool}`, '', `Clarity Score: ${result.clarity_score}`, '', 'Executive Summary:', result.executive_summary, '', 'Issues:', ...result.issues.map(x=>`- ${x}`), '', 'Improved Direction:', ...result.improved_bullets.map(x=>`- ${x}`), '', result.cta || ''].join('\n');
-    if (activeTool.id === 'kpi') return [`Moon Onyx Labs — ${result.tool}`, '', 'Cleaned KPIs:', ...result.cleaned_kpis.flatMap(x=>[`- Original: ${x.original}`, `  Clean Label: ${x.clean_label}`, `  Category: ${x.category}`, `  Slide-Ready: ${x.slide_ready}`]), '', `Recommendation: ${result.recommendation}`].join('\n');
-    if (activeTool.id === 'insights') return [`Moon Onyx Labs — ${result.tool}`, '', 'Generated Insights:', ...result.insights.flatMap(x=>[`- ${x.insight}`, `  ${x.so_what}`, `  Slide title: ${x.slide_title}`, `  Chart: ${x.chart_suggestion}`]), '', `Executive Narrative: ${result.executive_narrative}`, '', result.cta || ''].join('\n');
+
+    if (activeTool.id === 'clarity') {
+      return [
+        'Moon Onyx Labs — Executive Clarity Analyzer',
+        '',
+        `Score: ${result.score}/100`,
+        `Status: ${result.label}`,
+        '',
+        result.result
+      ].join('\n');
+    }
+
+    if (activeTool.id === 'kpi') {
+      return [
+        'Moon Onyx Labs — KPI Cleaner',
+        '',
+        `Issues Found: ${result.issues_found}`,
+        `Status: ${result.label}`,
+        '',
+        result.result
+      ].join('\n');
+    }
+
+    if (activeTool.id === 'insights') {
+      return [
+        'Moon Onyx Labs — Insight Generator',
+        '',
+        `Insight Type: ${result.insight_type}`,
+        `Status: ${result.label}`,
+        '',
+        result.result
+      ].join('\n');
+    }
+
     return JSON.stringify(result, null, 2);
   }
 
-  async function copyText(text, label='Copied') {
-    try { await navigator.clipboard.writeText(text); copiedLabel = label; setTimeout(()=>copiedLabel='', 1800); }
-    catch { error = 'Copy failed. You can manually highlight and copy the output.'; }
+  async function copyText(text, label = 'Copied') {
+    try {
+      await navigator.clipboard.writeText(text);
+      copiedLabel = label;
+      setTimeout(() => copiedLabel = '', 1800);
+    } catch {
+      error = 'Copy failed. You can manually highlight and copy the output.';
+    }
   }
 </script>
 
@@ -90,23 +135,16 @@
         <div class="empty-state enhanced"><p class="empty-tag">READY STATE</p><h4>{activeTool.emptyTitle}</h4><p>{activeTool.emptyBody}</p><pre>{activeTool.sample}</pre><button class="mini wide" on:click={useSample}>Load sample input</button></div>
       {/if}
 
-      {#if result && activeTool.id==='clarity'}
-        <div class="score-block"><span>Clarity Score</span><strong>{result.clarity_score}</strong></div>
-        <div class="result-card"><div class="card-heading"><h4>Executive Summary</h4><button on:click={()=>copyText(result.executive_summary,'Summary copied')}>Copy</button></div><p>{result.executive_summary}</p></div>
-        <div class="result-card"><div class="card-heading"><h4>Issues</h4><button on:click={()=>copyText(result.issues.join('\n'),'Issues copied')}>Copy</button></div><ul>{#each result.issues as issue}<li>{issue}</li>{/each}</ul></div>
-        <div class="result-card"><div class="card-heading"><h4>Improved Direction</h4><button on:click={()=>copyText(result.improved_bullets.join('\n'),'Direction copied')}>Copy</button></div><ul>{#each result.improved_bullets as bullet}<li>{bullet}</li>{/each}</ul></div>
-      {/if}
+     {#if result}
+  <div class="result-card">
+    <div class="card-heading">
+      <h4>{activeTool.label} Result</h4>
+      <button on:click={() => copyText(outputText(), 'Output copied')}>Copy</button>
+    </div>
 
-      {#if result && activeTool.id==='kpi'}
-        <div class="result-card"><div class="card-heading"><h4>Cleaned KPIs</h4><button on:click={()=>copyText(outputText(),'KPIs copied')}>Copy</button></div>{#each result.cleaned_kpis as item}<div class="kpi-row"><p class="small">Original: {item.original}</p><strong>{item.clean_label}</strong><span>{item.category}</span><p>{item.slide_ready}</p></div>{/each}</div>
-        <div class="result-card"><h4>Recommendation</h4><p>{result.recommendation}</p></div>
-      {/if}
-
-      {#if result && activeTool.id==='insights'}
-        <div class="result-card"><div class="card-heading"><h4>Generated Insights</h4><button on:click={()=>copyText(outputText(),'Insights copied')}>Copy</button></div>{#each result.insights as item}<div class="insight-row"><strong>{item.insight}</strong><p>{item.so_what}</p><p><b>Slide title:</b> {item.slide_title}</p><p><b>Chart:</b> {item.chart_suggestion}</p></div>{/each}</div>
-        <div class="result-card"><h4>Executive Narrative</h4><p>{result.executive_narrative}</p></div>
-      {/if}
-      {#if result?.cta}<div class="cta-strip">{result.cta}</div>{/if}
+    <pre>{outputText()}</pre>
+  </div>
+{/if}
     </div>
   </section>
 </main>
