@@ -1,6 +1,9 @@
 <script>
   import { tools } from './lib/tools.js';
   import { apiPost } from './lib/api.js';
+  import EmptyState from './components/ui/EmptyState.svelte';
+  import LoadingState from './components/ui/LoadingState.svelte';
+  import ResultBlock from "./components/ui/ResultBlock.svelte";
 
   let activeTool = tools[0];
   let inputText = '';
@@ -35,7 +38,12 @@
     copiedLabel = '';
 
     try {
-      result = await apiPost(activeTool.endpoint, { text: inputText });
+      const [data] = await Promise.all([
+  apiPost(activeTool.endpoint, { text: inputText }),
+  new Promise((resolve) => setTimeout(resolve, 800))
+]);
+
+result = data;
     } catch (err) {
       error = 'Could not connect to the backend. Make sure FastAPI is running on http://127.0.0.1:8000.';
     } finally {
@@ -130,20 +138,24 @@
       <div class="output-header"><div><p class="eyebrow">OUTPUT</p><h3>Executive-ready response</h3></div>{#if result}<button class="copy-output" on:click={()=>copyText(outputText(), 'Output copied')}>Copy Output</button>{/if}</div>
 
       {#if loading}
-        <div class="loading-state"><div class="scan"></div><div class="bars"><span></span><span></span><span></span></div><h4>Analyzing executive signal...</h4><p>MOL is structuring your input into cleaner, business-ready output.</p></div>
+        <LoadingState />
       {:else if !result}
-        <div class="empty-state enhanced"><p class="empty-tag">READY STATE</p><h4>{activeTool.emptyTitle}</h4><p>{activeTool.emptyBody}</p><pre>{activeTool.sample}</pre><button class="mini wide" on:click={useSample}>Load sample input</button></div>
+        <EmptyState
+        title={activeTool.emptyTitle}
+        body={activeTool.emptyBody}
+        sample={activeTool.sample}
+        onAction={useSample}
+        />
       {/if}
 
      {#if result}
-  <div class="result-card">
-    <div class="card-heading">
-      <h4>{activeTool.label} Result</h4>
-      <button on:click={() => copyText(outputText(), 'Output copied')}>Copy</button>
-    </div>
 
-    <pre>{outputText()}</pre>
-  </div>
+  <ResultBlock
+    title={activeTool.label + " Result"}
+    content={outputText()}
+    onCopy={() => copyText(outputText(), "Output copied")}
+/>
+
 {/if}
     </div>
   </section>

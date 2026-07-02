@@ -1,32 +1,18 @@
 <script>
-    export let text = "";
-    export let disabled = false;
-    export let type = "button";
+  export let text = '';
+  export let variant = 'primary';
+  export let disabled = false;
+  export let type = 'button';
+  export let onClick = () => {};
 </script>
 
-<button {type} {disabled}>
-    {text}
+<button
+  class:primary={variant === 'primary'}
+  class:secondary={variant === 'secondary'}
+  class:mini={variant === 'mini'}
+  {type}
+  {disabled}
+  on:click={onClick}
+>
+  <slot>{text}</slot>
 </button>
-
-<style>
-button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    background: #0F172A;
-    color: white;
-    cursor: pointer;
-    font-weight: 600;
-    transition: 0.2s;
-}
-
-button:hover {
-    opacity: 0.9;
-}
-
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-</style>

@@ -1,25 +1,22 @@
 <script>
-    export let title = "";
+  export let title = '';
+  export let eyebrow = '';
 </script>
 
-<div class="card">
-    {#if title}
-        <h2>{title}</h2>
-    {/if}
+<div class="result-card">
+  {#if eyebrow || title}
+    <div class="card-heading">
+      <div>
+        {#if eyebrow}
+          <p class="eyebrow">{eyebrow}</p>
+        {/if}
 
-    <slot />
+        {#if title}
+          <h4>{title}</h4>
+        {/if}
+      </div>
+    </div>
+  {/if}
+
+  <slot />
 </div>
-
-<style>
-.card {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    border: 1px solid #E5E7EB;
-    box-shadow: 0 4px 12px rgba(0,0,0,.05);
-}
-
-h2 {
-    margin-bottom: 16px;
-}
-</style>
