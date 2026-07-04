@@ -46,5 +46,37 @@ export const tools = [
     emptyTitle: 'Paste dashboard observations.',
     emptyBody: 'Use this for KPI summaries, Power BI exports, Tableau notes, leadership dashboards, or business metrics.',
     sample: 'Revenue increased 18% in Q2. Customer churn increased 4%. Support tickets increased after onboarding redesign. Enterprise accounts had the highest growth.'
-  }
+  },
+
+
+{
+  id: "executive-memo",
+
+  label: "Executive Memo",
+
+  endpoint: "/executive-memo/generate",
+
+  eyebrow: "TOOL 05",
+
+  title: "Executive Memo Studio",
+
+  description:
+      "Transform executive notes into polished leadership-ready memos.",
+
+  placeholder:
+      "Paste executive notes, dashboard summaries, meeting notes, or project updates...",
+
+  emptyTitle:
+      "Generate an executive memo.",
+
+  emptyBody:
+      "Choose a memo type and audience, then generate a polished memo.",
+
+  sample:
+`Revenue increased 18% this quarter.
+Customer churn declined by 3%.
+Support backlog improved after workflow automation.
+Marketing campaign exceeded forecast by 22%.
+Leadership requested recommendations for next quarter.`
+}
 ];

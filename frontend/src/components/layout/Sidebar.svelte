@@ -20,7 +20,8 @@
 
   <div class="section">
     <h3>Executive Intelligence</h3>
-
+    Executive Memo Studio
+    Generate leadership-ready executive memos.
     {#each tools as tool}
       <div class="nav-item">
         <strong>{tool.title}</strong>
