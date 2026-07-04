@@ -1,68 +1,30 @@
 <script>
-
-import Header from "./Header.svelte";
-
-import Sidebar from "./Sidebar.svelte";
-
-export let activeTool;
-
-export let onSelect;
-
+  import Sidebar from './Sidebar.svelte';
+  import Header from './Header.svelte';
+  import Workspace from './Workspace.svelte';
 </script>
 
-<div class="shell">
+<div class="app-shell">
+  <Sidebar />
 
-<Header />
-
-<div class="body">
-
-<Sidebar
-    {activeTool}
-    {onSelect}
-/>
-
-<main>
-
-<slot />
-
-</main>
-
-</div>
-
+  <div class="main-area">
+    <Header />
+    <Workspace />
+  </div>
 </div>
 
 <style>
+  .app-shell {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+    background: #070B1E;
+    color: #f7f7ff;
+  }
 
-.shell{
-
-height:100vh;
-
-display:flex;
-
-flex-direction:column;
-
-}
-
-.body{
-
-display:flex;
-
-flex:1;
-
-overflow:hidden;
-
-}
-
-main{
-
-flex:1;
-
-padding:32px;
-
-overflow:auto;
-
-background:#F1F5F9;
-
-}
-
+  .main-area {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
 </style>

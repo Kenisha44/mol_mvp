@@ -62,3 +62,53 @@ AI Presentation Assistant
 
 Status:
 Future
+
+# Current Features
+
+## Executive Clarity Analyzer
+
+Status: Complete
+
+---
+
+## KPI Cleaner
+
+Status: Complete
+
+---
+
+## Insight Generator
+
+Status: Complete
+
+---
+
+# Premium Features
+
+Dashboard Narrative Generator
+
+Status: Planned
+
+---
+
+Executive Memo Generator
+
+Status: Planned
+
+---
+
+KPI Health Checker
+
+Status: Planned
+
+---
+
+Workspace
+
+Status: Planned
+
+---
+
+Export Center
+
+Status: Planned

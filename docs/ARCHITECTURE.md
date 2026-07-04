@@ -1,94 +1,123 @@
-──────────────────────────────────────────
-1. PLAN
-──────────────────────────────────────────
-• Define the feature
-• Define the user flow
-• List files
-• Estimate time
+# Architecture
 
-            ↓
+## Philosophy
 
-──────────────────────────────────────────
-2. BUILD BACKEND
-──────────────────────────────────────────
-schemas.py
-service.py
-routes.py
+Moon Onyx Labs follows a modular, feature-based architecture.
 
-            ↓
+Every feature owns its own backend and frontend components.
 
-──────────────────────────────────────────
-3. TEST BACKEND
-──────────────────────────────────────────
-Swagger
+---
 
-JSON
+# Backend
 
-Errors
+backend/
 
-Edge cases
+app/
 
-            ↓
+core/
 
-──────────────────────────────────────────
-4. BUILD FRONTEND
-──────────────────────────────────────────
-Component
+shared/
 
-API
+features/
 
-Layout
+prompts/
 
-Styling
+Each feature contains:
 
-            ↓
+- routes.py
+- service.py
+- schemas.py
 
-──────────────────────────────────────────
-5. TEST FRONTEND
-──────────────────────────────────────────
-Browser
+---
 
-Responsive
+# Frontend
 
-Loading
+src/
 
-Errors
+components/
 
-            ↓
+features/
 
-──────────────────────────────────────────
-6. QA
-──────────────────────────────────────────
-UI Polish
+lib/
 
-Copy buttons
+styles/
 
-Animations
+assets/
 
-Accessibility
+Every feature contains:
 
-            ↓
+- Tool Component
+- Service
+- Output Component
 
-──────────────────────────────────────────
-7. COMMIT
-──────────────────────────────────────────
-Git
+---
 
-GitHub
+# Component Rules
 
-            ↓
+Reusable UI belongs inside:
 
-──────────────────────────────────────────
-8. DOCUMENT
-──────────────────────────────────────────
-Roadmap
+components/ui/
 
-Todo
+Reusable layouts belong inside:
 
-Features
+components/layout/
 
-Changelog
+Feature-specific UI belongs inside:
 
-            ↓
+features/
 
-NEXT FEATURE
+---
+
+# API
+
+All backend requests go through:
+
+lib/api.js
+
+No component should directly call fetch().
+
+---
+
+# Git Workflow
+
+Plan
+
+↓
+
+Code
+
+↓
+
+Test
+
+↓
+
+Commit
+
+↓
+
+Push
+
+↓
+
+Next Ticket
+
+---
+
+# Naming
+
+Frontend
+
+PascalCase.svelte
+
+Backend
+
+snake_case.py
+
+Routes
+
+feature_name/routes.py
+
+Services
+
+feature_name/service.py

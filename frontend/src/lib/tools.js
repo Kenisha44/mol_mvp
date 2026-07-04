@@ -34,5 +34,17 @@ export const tools = [
     emptyTitle: 'Paste raw data notes.',
     emptyBody: 'Use this for trend notes, research findings, analyst observations, KPI changes, and report summaries.',
     sample: 'Revenue increased 18% in Q1.\nCustomer churn increased 4%.\nMarketing costs decreased.\nSupport tickets increased after onboarding redesign.\nEnterprise accounts had the highest growth.'
+  },
+  {
+    id: 'dashboard',
+    label: 'Dashboard Narrative',
+    endpoint: '/dashboard-narrative/generate',
+    eyebrow: 'TOOL 04',
+    title: 'Dashboard Narrative Generator',
+    description: 'Transform dashboard notes and KPI changes into executive-ready narratives.',
+    placeholder: 'Paste dashboard notes, KPI changes, or executive reporting content...',
+    emptyTitle: 'Paste dashboard observations.',
+    emptyBody: 'Use this for KPI summaries, Power BI exports, Tableau notes, leadership dashboards, or business metrics.',
+    sample: 'Revenue increased 18% in Q2. Customer churn increased 4%. Support tickets increased after onboarding redesign. Enterprise accounts had the highest growth.'
   }
 ];

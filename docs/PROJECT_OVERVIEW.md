@@ -1,18 +1,25 @@
 # Moon Onyx Labs (MOL)
 
-## Vision
-
-Moon Onyx Labs is an Executive Intelligence Workspace that helps professionals transform raw business data into executive-ready insights, narratives, reports, and presentations.
-
----
-
-## Mission
-
-Enable executives, analysts, consultants, and business leaders to communicate data with clarity and confidence.
+Version: V1 Development
+Status: Active Development
 
 ---
 
-## Target Users
+# Vision
+
+Moon Onyx Labs is an Executive Intelligence Workspace that helps professionals transform raw business information into executive-ready insights, reports, presentations, and strategic recommendations.
+
+Instead of spending hours cleaning data and writing reports, users can generate polished executive communication in minutes.
+
+---
+
+# Mission
+
+To help organizations communicate data with clarity, confidence, and speed.
+
+---
+
+# Target Users
 
 - Executives
 - Business Analysts
@@ -20,37 +27,61 @@ Enable executives, analysts, consultants, and business leaders to communicate da
 - Data Analysts
 - Project Managers
 - Startup Founders
+- Operations Managers
 
 ---
 
-## Core Value Proposition
+# Core Products
 
-Upload business information.
+## Current Tools
 
-Receive executive-ready communication.
+- Executive Clarity Analyzer
+- KPI Cleaner
+- Insight Generator
+
+## Upcoming (V1)
+
+- Dashboard Narrative Generator
+- Executive Memo Generator
+- KPI Health Checker
+- Workspace
+- Export Center
+
+## Future (V2+)
+
+- Trend Detector
+- Visualization Recommender
+- AI Presentation Assistant
+- Team Collaboration
+- API Integrations
 
 ---
 
-## Technology Stack
+# Technology Stack
 
 Frontend
+
 - Svelte
 - Vite
 
 Backend
+
 - FastAPI
 - Python
 
 Deployment
+
 - GitHub
 - Vercel (Frontend)
-- Backend (later)
+- Backend hosting (future)
 
 ---
 
-## Development Philosophy
+# Development Philosophy
 
 - Modular architecture
-- Feature-first development
+- Feature-first organization
 - One ticket at a time
 - Test before commit
+- Small, safe iterations
+- Reusable components

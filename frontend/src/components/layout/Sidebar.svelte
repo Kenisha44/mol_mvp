@@ -1,68 +1,129 @@
 <script>
-    import { tools } from "../../lib/tools.js";
+  import { tools } from '../../lib/tools.js';
 
-    export let activeTool;
-    export let onSelect;
+  const workspaceItems = [
+    { label: 'Workspace', sub: 'Saved analyses & history' },
+    { label: 'Exports', sub: 'Download your outputs' },
+    { label: 'Settings', sub: 'Preferences & configuration' }
+  ];
 </script>
 
 <aside class="sidebar">
+  <div class="brand">
+    <div class="orb"></div>
+    <div>
+      <p>MOON ONYX LABS</p>
+      <h2>Executive Insight Engine</h2>
+      <span>Executive Intelligence Workspace</span>
+    </div>
+  </div>
 
-    <h3>Tools</h3>
+  <div class="section">
+    <h3>Executive Intelligence</h3>
 
     {#each tools as tool}
-
-        <button
-            class:active={activeTool===tool.id}
-            on:click={() => onSelect(tool.id)}>
-
-            {tool.title}
-
-        </button>
-
+      <div class="nav-item">
+        <strong>{tool.title}</strong>
+        <span>{tool.description}</span>
+      </div>
     {/each}
+  </div>
 
+  <div class="section">
+    <h3>Workspace</h3>
+
+    {#each workspaceItems as item}
+      <div class="nav-item muted">
+        <strong>{item.label}</strong>
+        <span>{item.sub}</span>
+      </div>
+    {/each}
+  </div>
+
+  <div class="upgrade">
+    <strong>Upgrade to Pro</strong>
+    <span>Unlock advanced insights, exports, and integrations.</span>
+  </div>
 </aside>
 
 <style>
+  .sidebar {
+    border-right: 1px solid rgba(0,245,212,.22);
+    background: linear-gradient(180deg, #081024, #050817);
+    padding: 26px 18px;
+  }
 
-.sidebar{
+  .brand {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 34px;
+  }
 
-    width:260px;
+  .orb {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: radial-gradient(circle at 30% 30%, #00F5D4, #9400D3 55%, #050817 80%);
+    box-shadow: 0 0 24px rgba(0,245,212,.45);
+  }
 
-    background:#F8FAFC;
+  .brand p,
+  h3 {
+    color: #00F5D4;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    font-size: .72rem;
+    margin: 0 0 6px;
+  }
 
-    padding:24px;
+  .brand h2 {
+    margin: 0;
+    font-size: 1.05rem;
+  }
 
-    border-right:1px solid #E2E8F0;
+  .brand span,
+  .nav-item span,
+  .upgrade span {
+    color: #b7c4e0;
+    font-size: .82rem;
+  }
 
-}
+  .section {
+    border-top: 1px solid rgba(0,245,212,.16);
+    padding-top: 22px;
+    margin-top: 22px;
+  }
 
-button{
+  .nav-item {
+    padding: 13px 14px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
 
-    width:100%;
+  .nav-item:first-of-type {
+    border-color: #FF007F;
+    background: linear-gradient(90deg, rgba(255,0,127,.28), rgba(148,0,211,.14));
+  }
 
-    margin-bottom:10px;
+  .nav-item strong {
+    display: block;
+    color: white;
+    margin-bottom: 4px;
+  }
 
-    padding:12px;
+  .upgrade {
+    margin-top: 28px;
+    border: 1px solid rgba(0,245,212,.35);
+    padding: 16px;
+    border-radius: 10px;
+    background: rgba(0,245,212,.05);
+  }
 
-    border:none;
-
-    background:white;
-
-    border-radius:8px;
-
-    cursor:pointer;
-
-    text-align:left;
-
-}
-
-button.active{
-
-    background:#0F172A;
-
-    color:white;
-
-}
-
+  .upgrade strong {
+    color: #00F5D4;
+    display: block;
+    margin-bottom: 6px;
+  }
 </style>

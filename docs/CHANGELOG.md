@@ -26,3 +26,22 @@ Improved
 Fixed
 
 - Frontend/backend communication
+
+# Changelog
+
+## v0.3.0
+
+Added
+
+- Backend modular architecture
+- Frontend modular architecture
+- Reusable UI components
+
+Improved
+
+- API structure
+- Project organization
+
+Fixed
+
+- Frontend/backend communication
