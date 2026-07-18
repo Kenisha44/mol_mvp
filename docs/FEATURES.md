@@ -112,3 +112,13 @@ Status: Planned
 Export Center
 
 Status: Planned
+
+- [x] Executive Clarity Analyzer
+- [x] KPI Cleaner
+- [x] Insight Generator
+- [x] Dashboard Narrative Generator
+- [ ] Executive Memo Studio (In Progress)
+- [ ] KPI Health Checker
+- [ ] Workspace
+- [ ] Export Center
+- [ ] Authentication

@@ -48,7 +48,6 @@ export const tools = [
     sample: 'Revenue increased 18% in Q2. Customer churn increased 4%. Support tickets increased after onboarding redesign. Enterprise accounts had the highest growth.'
   },
 
-
 {
   id: "executive-memo",
 
@@ -78,5 +77,13 @@ Customer churn declined by 3%.
 Support backlog improved after workflow automation.
 Marketing campaign exceeded forecast by 22%.
 Leadership requested recommendations for next quarter.`
+},
+
+{
+  id: "kpi-health",
+  eyebrow: "Executive Intelligence",
+  label: "KPI Health Checker",
+  title: "KPI Health Checker",
+  description: "Evaluate business health across your KPIs."
 }
 ];

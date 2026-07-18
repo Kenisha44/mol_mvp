@@ -3,11 +3,7 @@
   import HeroBanner from './HeroBanner.svelte';
   import ToolRouter from '../tool/ToolRouter.svelte';
 
-  let activeTool = tools[0];
-
-  function selectTool(tool) {
-    activeTool = tool;
-  }
+  export let activeTool = "clarity";
 </script>
 
 <main class="workspace">

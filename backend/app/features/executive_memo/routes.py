@@ -2,18 +2,22 @@ from fastapi import APIRouter
 
 from .schemas import (
     ExecutiveMemoRequest,
-    ExecutiveMemoResponse
+    ExecutiveMemoResponse,
 )
 
-from .service import generate_memo
+from .service import generate_executive_memo
 
-router = APIRouter(prefix="/executive-memo", tags=["Executive Memo"])
+router = APIRouter(
+    prefix="/executive-memo",
+    tags=["Executive Memo"],
+)
 
 
 @router.post(
     "/generate",
-    response_model=ExecutiveMemoResponse
+    response_model=ExecutiveMemoResponse,
 )
-def generate(request: ExecutiveMemoRequest):
-
-    return generate_memo(request)
+def generate(
+    request: ExecutiveMemoRequest,
+):
+    return generate_executive_memo(request)

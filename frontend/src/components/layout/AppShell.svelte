@@ -2,29 +2,44 @@
   import Sidebar from './Sidebar.svelte';
   import Header from './Header.svelte';
   import Workspace from './Workspace.svelte';
+
+  let activeTool = 'clarity';
+
+  function selectTool(toolId) {
+    activeTool = toolId;
+  }
 </script>
 
 <div class="app-shell">
-  <Sidebar />
+  <Sidebar
+    {activeTool}
+    onSelectTool={selectTool}
+  />
 
   <div class="main-area">
     <Header />
-    <Workspace />
+    <Workspace {activeTool} />
   </div>
 </div>
 
 <style>
   .app-shell {
-    display: grid;
-    grid-template-columns: 280px 1fr;
     min-height: 100vh;
-    background: #070B1E;
-    color: #f7f7ff;
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    background: #050817;
+    color: white;
   }
 
   .main-area {
     min-width: 0;
     display: flex;
     flex-direction: column;
+  }
+
+  @media (max-width: 900px) {
+    .app-shell {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

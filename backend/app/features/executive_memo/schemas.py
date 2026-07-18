@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class ExecutiveMemoRequest(BaseModel):
     notes: str
     memo_type: str

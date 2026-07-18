@@ -1,21 +1,39 @@
-from .schemas import ExecutiveMemoResponse
+from .schemas import ExecutiveMemoRequest, ExecutiveMemoResponse
 
-def generate_memo(request):
+
+def generate_executive_memo(
+    request: ExecutiveMemoRequest,
+) -> ExecutiveMemoResponse:
+
+    notes = request.notes.strip()
 
     return ExecutiveMemoResponse(
+        title=f"{request.memo_type}",
 
-        title="Weekly Executive Memo",
+        summary=(
+            "This memo summarizes the most important business updates "
+            "provided in the executive notes."
+        ),
 
-        summary="Summary...",
+        background=notes,
 
-        background="Background...",
+        findings=(
+            "The submitted notes indicate measurable business activity "
+            "that leadership should review."
+        ),
 
-        findings="Findings...",
+        impact=(
+            "These observations may influence operational planning, "
+            "resource allocation, and executive decision making."
+        ),
 
-        impact="Impact...",
+        recommendations=(
+            "Prioritize the highest-impact initiatives, continue "
+            "monitoring KPIs, and communicate progress regularly."
+        ),
 
-        recommendations="Recommendations...",
-
-        next_steps="Next steps..."
-
+        next_steps=(
+            "Validate findings, assign ownership, establish timelines, "
+            "and prepare follow-up reporting."
+        ),
     )
