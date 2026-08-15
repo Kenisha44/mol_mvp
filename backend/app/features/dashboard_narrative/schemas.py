@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import List
 
 
 class DashboardNarrativeRequest(BaseModel):
@@ -7,9 +6,16 @@ class DashboardNarrativeRequest(BaseModel):
 
 
 class DashboardNarrativeResponse(BaseModel):
+    result: str
+    performance_status: str
+    label: str
+
     executive_summary: str
-    key_findings: List[str]
-    business_risks: List[str]
-    opportunities: List[str]
-    recommendations: List[str]
-    action_items: List[str]
+    performance_drivers: str
+    risks: str
+    recommended_action: str
+    outlook: str
+
+    signal_count: int
+    positive_signal_count: int
+    negative_signal_count: int

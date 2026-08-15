@@ -9,3 +9,44 @@ body {
   textarea {
     font-family: inherit;
   }
+
+  /* =========================================
+   GLOBAL LOAD SAMPLE INPUT BUTTON
+   ========================================= */
+
+.sample-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: fit-content;
+  min-height: 38px;
+  padding: 9px 16px;
+
+  background: rgba(0, 245, 212, 0.08);
+  border: 1px solid rgba(0, 245, 212, 0.45);
+
+  color: #00F5D4;
+
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.sample-button:hover {
+  background: rgba(0, 245, 212, 0.14);
+  border-color: #00F5D4;
+  transform: translateY(-1px);
+}
+
+.sample-button:active {
+  transform: translateY(0);
+}

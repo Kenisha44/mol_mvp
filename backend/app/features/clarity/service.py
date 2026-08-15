@@ -33,28 +33,76 @@ def calculate_clarity_score(text: str) -> int:
 
 
 def get_clarity_label(score: int) -> str:
-    if score >= 85:
+    if score >= 90:
         return "Executive-ready"
-    if score >= 70:
-        return "Strong, minor edits needed"
-    if score >= 50:
-        return "Needs simplification"
-    return "Too dense or unclear"
+    if score >= 75:
+        return "Nearly executive-ready"
+    if score >= 60:
+        return "Needs refinement"
+    return "Needs significant revision"
+
+
+def get_recommendation(score: int) -> str:
+    if score >= 90:
+        return (
+            "Strong executive communication. The message is clear, concise, "
+            "and appropriately focused for leadership."
+        )
+
+    if score >= 75:
+        return (
+            "The core message is strong. Tighten longer sentences, move the "
+            "main business implication earlier, and remove unnecessary detail."
+        )
+
+    if score >= 60:
+        return (
+            "Clarify the primary takeaway, reduce unnecessary wording, and "
+            "make the business implication or requested decision more explicit."
+        )
+
+    return (
+        "Restructure the message around one primary takeaway. Simplify the "
+        "language, remove distracting detail, and clearly state what leadership "
+        "needs to know or decide."
+    )
+
+
+def refine_executive_text(text: str) -> str:
+    cleaned = " ".join(text.split())
+
+    replacements = {
+        "utilize": "use",
+        "leverage": "use",
+        "in order to": "to",
+        "due to the fact that": "because",
+        "at this point in time": "now",
+    }
+
+    for old, new in replacements.items():
+        cleaned = cleaned.replace(old, new)
+        cleaned = cleaned.replace(old.title(), new.title())
+
+    return cleaned
 
 
 def analyze_clarity(text: str) -> dict:
     score = calculate_clarity_score(text)
     label = get_clarity_label(score)
+    recommendation = get_recommendation(score)
+    refined_text = refine_executive_text(text)
 
     result = (
         f"Clarity Score: {score}/100\n\n"
         f"Status: {label}\n\n"
-        "Recommendation:\n"
-        "Simplify long sentences, remove unnecessary jargon, and make the main decision or insight easier to identify."
+        f"Recommendation:\n{recommendation}\n\n"
+        f"Refined Executive Copy:\n{refined_text}"
     )
 
     return {
         "result": result,
         "score": score,
         "label": label,
+        "recommendation": recommendation,
+        "refined_text": refined_text,
     }

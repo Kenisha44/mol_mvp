@@ -22,7 +22,7 @@
   <InsightTool tool={selectedTool} />
 {:else if activeTool === "kpi-health"}
     <KPIHealthTool tool={selectedTool}/>
-{:else if activeTool === 'dashboard-narrative'}
+{:else if activeTool === 'dashboard'}
   <DashboardNarrativeTool tool={selectedTool} />
 {:else if activeTool === 'executive-memo'}
   <ExecutiveMemoTool tool={selectedTool} />

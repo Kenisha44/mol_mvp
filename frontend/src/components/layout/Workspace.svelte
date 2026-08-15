@@ -27,10 +27,13 @@
 </main>
 
 <style>
-  .workspace {
-  flex: 1;
+ .workspace {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 32px;
-  overflow: auto;
+  overflow: hidden;
   color: #f7f7ff;
 }
 
@@ -63,12 +66,12 @@
     background: linear-gradient(135deg, rgba(148,0,211,.42), rgba(26,27,75,.95));
   }
 
-  .tool-workspace {
-  display: grid;
-  grid-template-columns: .9fr 1.1fr;
-  gap: 24px;
-  padding: 24px;
-  border: 1px solid rgba(0,245,212,.3);
+ .tool-workspace {
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+
+  border: 1px solid rgba(0, 245, 212, .3);
   background: #11193D;
   color: #f7f7ff;
 }

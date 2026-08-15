@@ -1,61 +1,189 @@
+import re
+
+
+POSITIVE_TERMS = [
+    "increase", "increased", "grew", "growth", "improved",
+    "improvement", "up", "higher", "rose", "gain", "gained",
+    "exceeded", "above target", "strong"
+]
+
+NEGATIVE_TERMS = [
+    "decrease", "decreased", "decline", "declined", "down",
+    "lower", "fell", "drop", "dropped", "churn", "risk",
+    "missed", "below target", "tickets increased", "cost increased"
+]
+
+
+def split_signals(text: str) -> list[str]:
+    signals = re.split(r"[\n]+|(?<=[.!?])\s+", text)
+
+    return [
+        signal.strip()
+        for signal in signals
+        if signal.strip()
+    ]
+
+
+def classify_signal(signal: str) -> str:
+    lower_signal = signal.lower()
+
+    positive = any(term in lower_signal for term in POSITIVE_TERMS)
+    negative = any(term in lower_signal for term in NEGATIVE_TERMS)
+
+    if positive and negative:
+        return "mixed"
+
+    if negative:
+        return "negative"
+
+    if positive:
+        return "positive"
+
+    return "neutral"
+
+
 def generate_dashboard_narrative(text: str) -> dict:
-    lower_text = text.lower()
+    signals = split_signals(text)
 
-    growth_signal = any(word in lower_text for word in ["increase", "grew", "growth", "up", "higher"])
-    decline_signal = any(word in lower_text for word in ["decrease", "decline", "down", "drop", "lower"])
-    risk_signal = any(word in lower_text for word in ["churn", "cost", "tickets", "complaints", "delays", "risk"])
+    positive_signals = []
+    negative_signals = []
+    neutral_signals = []
 
-    executive_summary = (
-        "The dashboard indicates meaningful business movement across key performance areas. "
-        "Leadership should focus on understanding the drivers behind the strongest changes, "
-        "monitoring potential risks, and translating the findings into clear next-step decisions."
+    for signal in signals:
+        classification = classify_signal(signal)
+
+        if classification == "positive":
+            positive_signals.append(signal)
+
+        elif classification in ["negative", "mixed"]:
+            negative_signals.append(signal)
+
+        else:
+            neutral_signals.append(signal)
+
+    positive_count = len(positive_signals)
+    negative_count = len(negative_signals)
+    total_signals = len(signals)
+
+    if positive_count > 0 and negative_count > 0:
+        performance_status = "Mixed Performance"
+        status_label = "Opportunity + risk"
+
+        executive_summary = (
+            "Performance is showing positive momentum, but several risk "
+            "signals require management attention before the gains can be "
+            "considered sustainable."
+        )
+
+        outlook = (
+            "Near-term performance remains constructive, provided leadership "
+            "addresses the negative operating signals while preserving the "
+            "drivers behind current growth."
+        )
+
+    elif positive_count > 0:
+        performance_status = "Positive Performance"
+        status_label = "Growth momentum"
+
+        executive_summary = (
+            "The dashboard indicates broadly positive performance with "
+            "multiple signals of improving business momentum."
+        )
+
+        outlook = (
+            "The current trajectory is favorable. Leadership should focus "
+            "on protecting the strongest performance drivers and determining "
+            "which gains can be scaled."
+        )
+
+    elif negative_count > 0:
+        performance_status = "Performance Risk"
+        status_label = "Attention required"
+
+        executive_summary = (
+            "The dashboard indicates meaningful performance pressure that "
+            "requires leadership attention."
+        )
+
+        outlook = (
+            "The near-term outlook remains cautious until the primary "
+            "performance risks are understood and corrective actions begin "
+            "to produce measurable improvement."
+        )
+
+    else:
+        performance_status = "Stable Performance"
+        status_label = "Monitor"
+
+        executive_summary = (
+            "The dashboard does not currently show a dominant positive or "
+            "negative performance direction."
+        )
+
+        outlook = (
+            "Leadership should continue monitoring the available indicators "
+            "and add comparison periods or targets to improve interpretation."
+        )
+
+    if positive_signals:
+        drivers = (
+            "Positive performance is being supported by: "
+            + " ".join(positive_signals[:3])
+        )
+    else:
+        drivers = (
+            "No clear positive performance driver was identified in the "
+            "submitted dashboard notes."
+        )
+
+    if negative_signals:
+        risks = (
+            "Management attention should focus on: "
+            + " ".join(negative_signals[:3])
+        )
+    else:
+        risks = (
+            "No major negative performance signal was identified in the "
+            "submitted dashboard notes."
+        )
+
+    if negative_count > 0:
+        recommended_action = (
+            "Investigate the root causes behind the negative indicators, "
+            "assign ownership for corrective actions, and monitor whether "
+            "those KPIs improve during the next reporting period."
+        )
+
+    elif positive_count > 0:
+        recommended_action = (
+            "Identify the operational drivers behind the strongest gains "
+            "and determine which improvements can be repeated or scaled."
+        )
+
+    else:
+        recommended_action = (
+            "Add targets, prior-period comparisons, and additional KPI "
+            "context before making a major management decision."
+        )
+
+    result = (
+        f"Executive Summary:\n{executive_summary}\n\n"
+        f"Performance Drivers:\n{drivers}\n\n"
+        f"Risks & Watch Items:\n{risks}\n\n"
+        f"Recommended Action:\n{recommended_action}\n\n"
+        f"Outlook:\n{outlook}"
     )
 
-    key_findings = []
-
-    if growth_signal:
-        key_findings.append("One or more metrics show positive movement, suggesting potential growth momentum.")
-    if decline_signal:
-        key_findings.append("One or more metrics show negative movement, which may require further investigation.")
-    if risk_signal:
-        key_findings.append("The dashboard includes possible risk indicators that should be monitored closely.")
-
-    if not key_findings:
-        key_findings.append("The dashboard information needs clearer comparisons, time periods, and measurable values.")
-
-    business_risks = []
-
-    if risk_signal:
-        business_risks.append("Operational or customer experience risks may be emerging based on the provided notes.")
-    if decline_signal:
-        business_risks.append("Declining metrics may indicate performance pressure or execution gaps.")
-
-    if not business_risks:
-        business_risks.append("No major risk signal is obvious from the current notes, but additional context is needed.")
-
-    opportunities = []
-
-    if growth_signal:
-        opportunities.append("Investigate what drove the strongest positive results and determine whether they can be repeated.")
-    opportunities.append("Use the dashboard findings to create clearer leadership reporting and decision recommendations.")
-
-    recommendations = [
-        "Add time periods, comparison points, and baseline values for stronger executive interpretation.",
-        "Separate the most important findings from supporting details.",
-        "Translate each metric movement into a business implication."
-    ]
-
-    action_items = [
-        "Confirm which KPI changes matter most to leadership.",
-        "Identify the root cause behind the strongest positive or negative movement.",
-        "Prepare a short executive summary for the next leadership discussion."
-    ]
-
     return {
+        "result": result,
+        "performance_status": performance_status,
+        "label": status_label,
         "executive_summary": executive_summary,
-        "key_findings": key_findings,
-        "business_risks": business_risks,
-        "opportunities": opportunities,
-        "recommendations": recommendations,
-        "action_items": action_items,
+        "performance_drivers": drivers,
+        "risks": risks,
+        "recommended_action": recommended_action,
+        "outlook": outlook,
+        "signal_count": total_signals,
+        "positive_signal_count": positive_count,
+        "negative_signal_count": negative_count,
     }

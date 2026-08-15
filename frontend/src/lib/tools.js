@@ -12,7 +12,7 @@ export const tools = [
     sample: 'Sales increased in Q1 but customer churn also increased slightly. We launched two campaigns and the email campaign did better than expected. Support tickets are still high and leadership wants recommendations for next quarter.'
   },
   {
-    id: 'kpi',
+    id: 'kpi-cleaner',
     label: 'KPI Cleaner',
     endpoint: '/kpi-cleaner/clean',
     eyebrow: 'TOOL 02',

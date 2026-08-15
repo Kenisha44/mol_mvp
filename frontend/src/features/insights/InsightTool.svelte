@@ -1,212 +1,596 @@
 <script>
-import LoadingState from "../../components/ui/LoadingState.svelte";
-import EmptyState from "../../components/ui/EmptyState.svelte";
-import InsightResult from "./InsightResult.svelte";
-import { generateInsight } from "./insightService.js";
+  import LoadingState from "../../components/ui/LoadingState.svelte";
+  import EmptyState from "../../components/ui/EmptyState.svelte";
+  import InsightResult from "./InsightResult.svelte";
+  import { generateInsight } from "./insightService.js";
 
-export let tool;
+  export let tool;
 
-let inputText = "";
-let result = null;
-let loading = false;
-let error = "";
-let copiedLabel = "";
+  let inputText = "";
+  let result = null;
+  let loading = false;
+  let error = "";
+  let copiedLabel = "";
 
-function useSample(){
+  $: wordCount = inputText.trim()
+    ? inputText.trim().split(/\s+/).length
+    : 0;
 
+  $: lineCount = inputText.trim()
+    ? inputText.trim().split(/\r?\n/).filter(Boolean).length
+    : 0;
+
+  function useSample() {
     inputText = tool.sample;
-
     result = null;
-
     error = "";
+    copiedLabel = "";
+  }
 
-}
+  function clearInput() {
+    inputText = "";
+    result = null;
+    error = "";
+    copiedLabel = "";
+  }
 
-function outputText(){
-
-    if(!result) return "";
+  function outputText() {
+    if (!result) return "";
 
     return [
-
-        "Moon Onyx Labs — Insight Generator",
-
-        "",
-
-        `Insight Type: ${result.insight_type}`,
-
-        `Status: ${result.label}`,
-
-        "",
-
-        result.result
-
+      "Moon Onyx Labs — Insight Generator",
+      "",
+      `Insight Type: ${result.insight_type}`,
+      `Status: ${result.label}`,
+      "",
+      result.result
     ].join("\n");
+  }
 
-}
+  async function copyText(text, label = "Copied") {
+    try {
+      await navigator.clipboard.writeText(text);
+      copiedLabel = label;
 
-async function copyText(text,label="Copied"){
+      setTimeout(() => {
+        copiedLabel = "";
+      }, 1800);
+    } catch {
+      error = "Copy failed. You can manually highlight and copy the output.";
+    }
+  }
 
-    await navigator.clipboard.writeText(text);
-
-    copiedLabel = label;
-
-    setTimeout(()=>copiedLabel="",1800);
-
-}
-
-async function runTool(){
-
-    if(!inputText.trim()){
-
-        error="Paste data first.";
-
-        return;
-
+  async function runTool() {
+    if (!inputText.trim()) {
+      error = "Paste data, observations, or KPI notes first.";
+      return;
     }
 
-    loading=true;
+    loading = true;
+    result = null;
+    error = "";
+    copiedLabel = "";
 
-    result=null;
+    try {
+      const [data] = await Promise.all([
+        generateInsight(inputText),
+        new Promise((resolve) => setTimeout(resolve, 800))
+      ]);
 
-    error="";
-
-    copiedLabel="";
-
-    try{
-
-        const [data]=await Promise.all([
-
-            generateInsight(inputText),
-
-            new Promise(resolve=>setTimeout(resolve,800))
-
-        ]);
-
-        result=data;
-
+      result = data;
+    } catch (err) {
+      console.error(err);
+      error = "Could not generate insights. Make sure the backend is running.";
+    } finally {
+      loading = false;
     }
-
-    catch{
-
-        error="Backend unavailable.";
-
-    }
-
-    finally{
-
-        loading=false;
-
-    }
-
-}
+  }
 </script>
 
-<div class="input-panel">
+<div class="insight-tool">
+  <section class="input-panel">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">{tool.eyebrow}</p>
+        <h2>{tool.title}</h2>
 
-<div class="panel-top">
+        <p class="description">
+          {tool.description}
+        </p>
+      </div>
 
-<p class="eyebrow">{tool.eyebrow}</p>
+      <button
+        type="button"
+        class="sample-button"
+        on:click={useSample}
+      >
+        Use Sample
+      </button>
+    </div>
 
-<button class="mini" on:click={useSample}>
+    <div class="editor-shell">
+      <div class="editor-label-row">
+        <label for="insight-input">Business Signals</label>
 
-Use sample
+        <div class="editor-meta">
+          <span>{lineCount} signal{lineCount === 1 ? "" : "s"}</span>
+          <span>{wordCount} words</span>
+        </div>
+      </div>
 
-</button>
+      <textarea
+        id="insight-input"
+        bind:value={inputText}
+        placeholder={tool.placeholder}
+      ></textarea>
 
+      <div class="editor-footer">
+        <span>
+          Paste KPI changes, research findings, analyst observations, or report notes.
+        </span>
+
+        {#if inputText}
+          <button
+            type="button"
+            class="text-action"
+            on:click={clearInput}
+          >
+            Clear
+          </button>
+        {/if}
+      </div>
+    </div>
+
+    <div class="signal-hint">
+      <p class="hint-label">Best Inputs</p>
+
+      <div class="hint-grid">
+        <span>KPI changes</span>
+        <span>trend notes</span>
+        <span>research findings</span>
+        <span>report observations</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button
+        type="button"
+        class="run-button"
+        on:click={runTool}
+        disabled={loading}
+      >
+        {#if loading}
+          <span class="loader"></span>
+          Generating Executive Insight...
+        {:else}
+          Run Insight Generator
+        {/if}
+      </button>
+
+      {#if inputText}
+        <button
+          type="button"
+          class="secondary-button"
+          on:click={() => copyText(inputText, "Input copied")}
+        >
+          Copy Input
+        </button>
+      {/if}
+    </div>
+
+    {#if error}
+      <div class="message error">
+        {error}
+      </div>
+    {/if}
+
+    {#if copiedLabel}
+      <div class="message success">
+        {copiedLabel}
+      </div>
+    {/if}
+  </section>
+
+  <section class="output-panel">
+    <div class="output-header">
+      <div>
+        <p class="eyebrow">Executive Intelligence</p>
+        <h3>Insight Analysis</h3>
+      </div>
+
+      {#if result}
+        <span class="status-badge">
+          Analysis Complete
+        </span>
+      {/if}
+    </div>
+
+    {#if loading}
+      <LoadingState />
+    {:else if result}
+      <InsightResult
+        {result}
+        onCopy={() => copyText(outputText(), "Output copied")}
+      />
+    {:else}
+      <EmptyState
+        title={tool.emptyTitle}
+        body={tool.emptyBody}
+        sample={tool.sample}
+        onAction={useSample}
+      />
+    {/if}
+  </section>
 </div>
 
-<h2>{tool.title}</h2>
+<style>
+  .insight-tool {
+    display: grid;
+    grid-template-columns: minmax(320px, .82fr) minmax(0, 1.5fr);
+    min-height: 520px;
 
-<p class="description">{tool.description}</p>
+    border: 1px solid rgba(0, 245, 212, .28);
 
-<textarea
+    background:
+      radial-gradient(
+        circle at top right,
+        rgba(148, 0, 211, .08),
+        transparent 32%
+      ),
+      #0b1230;
+  }
 
-bind:value={inputText}
+  .input-panel {
+    padding: 28px;
+    border-right: 1px solid rgba(0, 245, 212, .22);
+  }
 
-placeholder={tool.placeholder}
+  .output-panel {
+    min-width: 0;
+    padding: 28px;
+    overflow: hidden;
+  }
 
-/>
+  .panel-header,
+  .output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 18px;
+  }
 
-<div class="actions">
+  .eyebrow {
+    margin: 0 0 8px;
 
-<button
+    color: #00f5d4;
 
-class="run-button"
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
 
-on:click={runTool}
+  h2,
+  h3 {
+    margin: 0;
+    color: #f7f7ff;
+  }
 
-disabled={loading}>
+  h2 {
+    font-size: 1.8rem;
+    line-height: 1.05;
+  }
 
-{#if loading}
+  h3 {
+    font-size: 1.2rem;
+  }
 
-<span class="loader"></span>
+  .description {
+    max-width: 38rem;
+    margin: 12px 0 0;
 
-Processing Signal...
+    color: #b7c4e0;
+    line-height: 1.55;
+  }
 
-{:else}
+  .sample-button {
+    flex: 0 0 auto;
 
-Run {tool.label}
+    padding: 9px 12px;
 
-{/if}
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 6px;
 
-</button>
+    background: rgba(255, 255, 255, .04);
+    color: #f7f7ff;
 
-</div>
+    font-weight: 700;
+    cursor: pointer;
+  }
 
-{#if error}
+  .sample-button:hover {
+    border-color: rgba(0, 245, 212, .55);
+  }
 
-<p class="error">{error}</p>
+  .editor-shell {
+    margin-top: 26px;
 
-{/if}
+    border: 1px solid rgba(0, 245, 212, .24);
 
-</div>
+    background: rgba(3, 8, 27, .64);
+  }
 
-<div class="output-panel">
+  .editor-label-row,
+  .editor-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
 
-<div class="output-header">
+  .editor-label-row {
+    padding: 12px 14px;
 
-<p class="eyebrow">
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+  }
 
-OUTPUT
+  .editor-label-row label {
+    color: #f7f7ff;
 
-</p>
+    font-size: .82rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
 
-<h3>
+  .editor-meta {
+    display: flex;
+    gap: 12px;
 
-Executive Insight
+    color: #8293ba;
 
-</h3>
+    font-size: .72rem;
+  }
 
-</div>
+  textarea {
+    display: block;
 
-{#if loading}
+    width: 100%;
+    min-height: 250px;
 
-<LoadingState />
+    box-sizing: border-box;
 
-{:else if result}
+    padding: 18px;
 
-<InsightResult
+    border: 0;
+    outline: 0;
 
-{result}
+    resize: vertical;
 
-onCopy={()=>copyText(outputText(),"Output copied")}
+    background: transparent;
+    color: #f7f7ff;
 
-/>
+    font: inherit;
+    line-height: 1.65;
+  }
 
-{:else}
+  textarea::placeholder {
+    color: #68779e;
+  }
 
-<EmptyState
+  textarea:focus {
+    box-shadow:
+      inset 0 0 0 1px rgba(0, 245, 212, .5);
+  }
 
-title={tool.emptyTitle}
+  .editor-footer {
+    padding: 10px 14px;
 
-body={tool.emptyBody}
+    border-top: 1px solid rgba(255, 255, 255, .08);
 
-sample={tool.sample}
+    color: #8293ba;
 
-onAction={useSample}
+    font-size: .72rem;
+  }
 
-/>
+  .text-action {
+    padding: 0;
+    border: 0;
 
-{/if}
+    background: transparent;
+    color: #00f5d4;
 
-</div>
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .signal-hint {
+    margin-top: 14px;
+    padding: 14px;
+
+    border: 1px solid rgba(255, 255, 255, .07);
+
+    background: rgba(255, 255, 255, .025);
+  }
+
+  .hint-label {
+    margin: 0 0 10px;
+
+    color: #8190b6;
+
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .hint-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .hint-grid span {
+    padding: 5px 8px;
+
+    border: 1px solid rgba(0, 245, 212, .18);
+
+    background: rgba(0, 245, 212, .04);
+    color: #aab8d8;
+
+    font-size: .7rem;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    margin-top: 18px;
+  }
+
+  .run-button,
+  .secondary-button {
+    min-height: 46px;
+    padding: 0 18px;
+
+    border-radius: 6px;
+
+    font-weight: 800;
+  }
+
+  .run-button {
+    flex: 1;
+    min-width: 210px;
+
+    border: 1px solid #ff007f;
+
+    background:
+      linear-gradient(
+        90deg,
+        #9400d3,
+        #ff007f
+      );
+
+    color: white;
+    cursor: pointer;
+  }
+
+  .run-button:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+
+  .run-button:disabled {
+    opacity: .6;
+    cursor: wait;
+  }
+
+  .secondary-button {
+    border: 1px solid rgba(0, 245, 212, .28);
+
+    background: rgba(0, 245, 212, .06);
+    color: #00f5d4;
+
+    cursor: pointer;
+  }
+
+  .secondary-button:hover {
+    background: rgba(0, 245, 212, .11);
+  }
+
+  .output-header {
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+  }
+
+  .status-badge {
+    padding: 7px 10px;
+
+    border: 1px solid rgba(0, 245, 212, .28);
+
+    background: rgba(0, 245, 212, .07);
+    color: #00f5d4;
+
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .message {
+    margin-top: 14px;
+    padding: 12px 14px;
+
+    border-radius: 6px;
+
+    font-size: .82rem;
+    font-weight: 700;
+  }
+
+  .error {
+    border: 1px solid rgba(255, 95, 117, .35);
+
+    background: rgba(255, 95, 117, .08);
+    color: #ff8fa3;
+  }
+
+  .success {
+    border: 1px solid rgba(0, 245, 212, .28);
+
+    background: rgba(0, 245, 212, .06);
+    color: #00f5d4;
+  }
+
+  .loader {
+    display: inline-block;
+
+    width: 10px;
+    height: 10px;
+
+    margin-right: 8px;
+
+    border: 2px solid rgba(255, 255, 255, .35);
+    border-top-color: white;
+    border-radius: 999px;
+
+    animation: spin .7s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (max-width: 980px) {
+    .insight-tool {
+      grid-template-columns: 1fr;
+    }
+
+    .input-panel {
+      border-right: 0;
+      border-bottom: 1px solid rgba(0, 245, 212, .22);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .input-panel,
+    .output-panel {
+      padding: 20px;
+    }
+
+    .panel-header,
+    .output-header,
+    .editor-label-row,
+    .editor-footer {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .editor-meta {
+      flex-wrap: wrap;
+    }
+  }
+</style>
