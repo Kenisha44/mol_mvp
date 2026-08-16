@@ -1,6 +1,11 @@
 <script>
+  import { saveAnalysis } from '../../lib/analysisStorage.js';
+
   export let result;
   export let onCopy = () => {};
+  export let inputText = '';
+
+  let savedLabel = '';
 
   $: score = Number(result?.score ?? 0);
 
@@ -21,6 +26,32 @@
         : score >= 60
           ? 'The core message is present, but the communication can be sharper and more executive-focused.'
           : 'The content would benefit from significant simplification, prioritization, and clearer direction.';
+let isSaved = false;
+
+function saveCurrentAnalysis() {
+  if (isSaved) return;
+
+  saveAnalysis({
+    toolId: 'clarity',
+    toolName: 'Executive Clarity Analyzer',
+    title: 'Executive Clarity Analysis',
+    status: `${result.label} • ${result.score}/100`,
+    preview:
+      result.refined_text ||
+      result.recommendation ||
+      inputText.slice(0, 140),
+    input: inputText,
+    result
+  });
+
+  isSaved = true;
+  savedLabel = 'Saved to Workspace';
+
+  setTimeout(() => {
+    savedLabel = '';
+  }, 1800);
+}
+
 </script>
 
 <div class="clarity-result">
@@ -52,7 +83,7 @@
         {scoreMessage}
       </p>
     </div>
-    
+
 <div class="recommendation-card">
   <p class="eyebrow">RECOMMENDATION</p>
   <p>{result.recommendation}</p>
@@ -134,16 +165,25 @@
     >
       Copy Analysis
     </button>
+{#if savedLabel}
+  <div class="saved-message">
+    {savedLabel}
+  </div>
+{/if}
+<button
+  type="button"
+  class="action save-action"
+  class:saved={isSaved}
+  on:click={saveCurrentAnalysis}
+  disabled={isSaved}
+>
+  {#if isSaved}
+    Saved ✓
+  {:else}
+    Save to Workspace
+  {/if}
+</button>
 
-    <button
-      type="button"
-      class="action"
-      disabled
-      title="Coming with Workspace"
-    >
-      Save
-      <span>Coming Soon</span>
-    </button>
 
     <button
       type="button"
@@ -427,6 +467,38 @@
 .recommendation-card p:last-child {
   margin-bottom: 0;
 }
+
+.save-action {
+  border-color: rgba(0, 245, 212, .28);
+  background: rgba(0, 245, 212, .06);
+  color: #00f5d4;
+  cursor: pointer;
+}
+
+.save-action:hover {
+  background: rgba(0, 245, 212, .12);
+}
+
+.saved-message {
+  padding: 10px 12px;
+
+  border: 1px solid rgba(0, 245, 212, .25);
+
+  background: rgba(0, 245, 212, .06);
+  color: #00f5d4;
+
+  font-size: .78rem;
+  font-weight: 800;
+}
+
+.save-action.saved {
+  border-color: rgba(0, 245, 212, .35);
+  background: rgba(0, 245, 212, .10);
+  color: #00f5d4;
+  opacity: 1;
+  cursor: default;
+}
+
   @media (max-width: 1050px) {
     .result-overview,
     .analysis-footer {

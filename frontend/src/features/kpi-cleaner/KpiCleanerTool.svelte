@@ -206,10 +206,11 @@
     {#if loading}
       <LoadingState />
     {:else if result}
-      <KpiCleanerResult
-        {result}
-        onCopy={() => copyText(outputText(), 'Output copied')}
-      />
+<KpiCleanerResult
+  {result}
+  inputText={inputText}
+  onCopy={() => copyText(outputText(), 'Output copied')}
+/>
     {:else}
       <EmptyState
         title={tool.emptyTitle}

@@ -1,6 +1,75 @@
 <script>
+  import { saveAnalysis } from '../../lib/analysisStorage.js';
+
   export let result;
   export let onCopy = () => {};
+  export let inputText = '';
+
+  let isSaved = false;
+  let savedLabel = '';
+
+  function saveCurrentAnalysis() {
+    if (isSaved) return;
+
+    saveAnalysis({
+      toolId: 'dashboard',
+      toolName: 'Dashboard Narrative Generator',
+      title:
+        result.performance_status ||
+        'Executive Dashboard Narrative',
+      status:
+        result.label ||
+        result.performance_status ||
+        'Saved',
+      preview:
+        result.executive_summary ||
+        result.outlook ||
+        inputText.slice(0, 140),
+      input: inputText,
+      result
+    });
+
+    isSaved = true;
+    savedLabel = 'Saved to Workspace';
+
+    setTimeout(() => {
+      savedLabel = '';
+    }, 1800);
+  }
+
+  const sections = [
+    {
+      label: 'Executive Summary',
+      icon: '◐',
+      type: 'summary',
+      items: null
+    },
+    {
+      label: 'Key Findings',
+      icon: '◆',
+      type: 'key_findings'
+    },
+    {
+      label: 'Business Risks',
+      icon: '!',
+      type: 'business_risks'
+    },
+    {
+      label: 'Opportunities',
+      icon: '✦',
+      type: 'opportunities'
+    },
+    {
+      label: 'Recommendations',
+      icon: '✓',
+      type: 'recommendations'
+    },
+    {
+      label: 'Action Items',
+      icon: '→',
+      type: 'action_items'
+    }
+  ];
 </script>
 
 <div class="narrative-report">
@@ -157,39 +226,46 @@
 
   </section>
 
-
-  <div class="actions">
-
-    <button
-      type="button"
-      class="action primary-action"
-      on:click={onCopy}
-    >
-      Copy Analysis
-    </button>
-
-    <button
-      type="button"
-      class="action"
-      disabled
-    >
-      Save
-      <span>Coming Soon</span>
-    </button>
-
-    <button
-      type="button"
-      class="action"
-      disabled
-    >
-      Export
-      <span>Coming Soon</span>
-    </button>
-
-  </div>
-
 </div>
 
+<div class="result-actions">
+  <button
+    type="button"
+    class="copy-action"
+    on:click={onCopy}
+  >
+    Copy Narrative
+  </button>
+
+  <button
+    type="button"
+    class="save-action"
+    class:saved={isSaved}
+    on:click={saveCurrentAnalysis}
+    disabled={isSaved}
+  >
+    {#if isSaved}
+      Saved ✓
+    {:else}
+      Save to Workspace
+    {/if}
+  </button>
+
+  <button
+    type="button"
+    class="export-action"
+    disabled
+  >
+    Export
+    <span>Coming Soon</span>
+  </button>
+</div>
+
+{#if savedLabel}
+  <div class="saved-message">
+    {savedLabel}
+  </div>
+{/if}
 
 <style>
 
@@ -564,6 +640,70 @@
     text-transform: uppercase;
   }
 
+.result-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.result-actions button {
+  min-height: 42px;
+  padding: 0 15px;
+  border-radius: 5px;
+  font-weight: 800;
+  font-family: inherit;
+}
+
+.copy-action {
+  border: 1px solid rgba(255, 0, 127, .5);
+  background: linear-gradient(
+    90deg,
+    rgba(148, 0, 211, .7),
+    rgba(255, 0, 127, .7)
+  );
+  color: white;
+  cursor: pointer;
+}
+
+.save-action {
+  border: 1px solid rgba(0, 245, 212, .42);
+  background: rgba(0, 245, 212, .06);
+  color: #00f5d4;
+  cursor: pointer;
+}
+
+.save-action:hover:not(:disabled) {
+  background: rgba(0, 245, 212, .12);
+}
+
+.save-action.saved {
+  opacity: .7;
+  cursor: default;
+}
+
+.export-action {
+  border: 1px solid rgba(255, 255, 255, .13);
+  background: rgba(255, 255, 255, .035);
+  color: #8290b3;
+  cursor: not-allowed;
+}
+
+.export-action span {
+  margin-left: 7px;
+  font-size: .63rem;
+  text-transform: uppercase;
+}
+
+.saved-message {
+  padding: 10px 13px;
+  border: 1px solid rgba(0, 245, 212, .22);
+  background: rgba(0, 245, 212, .05);
+  color: #00f5d4;
+  font-size: .78rem;
+  font-weight: 700;
+}
 
   /* RESPONSIVE */
 

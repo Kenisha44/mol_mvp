@@ -208,10 +208,11 @@
     {#if loading}
       <LoadingState />
     {:else if result}
-      <InsightResult
-        {result}
-        onCopy={() => copyText(outputText(), "Output copied")}
-      />
+<InsightResult
+  {result}
+  inputText={inputText}
+  onCopy={() => copyText(outputText(), "Output copied")}
+/>
     {:else}
       <EmptyState
         title={tool.emptyTitle}
@@ -441,13 +442,19 @@
     font-size: .7rem;
   }
 
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+.actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 14px;
+}
 
-    margin-top: 18px;
-  }
+.actions .action {
+  width: auto;
+  flex: 0 0 auto;
+}
 
   .run-button,
   .secondary-button {

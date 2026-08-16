@@ -1,6 +1,36 @@
 <script>
+  import { saveAnalysis } from '../../lib/analysisStorage.js';
+
   export let result;
   export let onCopy = () => {};
+  export let inputText = '';
+
+  let isSaved = false;
+  let savedLabel = '';
+
+  function saveCurrentAnalysis() {
+    if (isSaved) return;
+
+    saveAnalysis({
+      toolId: 'insights',
+      toolName: 'Insight Generator',
+      title: result.executive_title || 'Executive Insight Analysis',
+      status: result.insight_type || result.label || 'Saved',
+      preview:
+        result.primary_insight ||
+        result.so_what ||
+        inputText.slice(0, 140),
+      input: inputText,
+      result
+    });
+
+    isSaved = true;
+    savedLabel = 'Saved to Workspace';
+
+    setTimeout(() => {
+      savedLabel = '';
+    }, 1800);
+  }
 </script>
 
 <div class="insight-results">
@@ -106,30 +136,69 @@
   </section>
 
 
-  <!-- SIGNAL SUMMARY -->
-  <section class="signal-strip">
+<!-- SIGNAL SUMMARY -->
+<section class="signal-strip">
+  <div>
+    <span>Signals analyzed</span>
+    <strong>{result.signal_count ?? '—'}</strong>
+  </div>
 
-    <div>
-      <span>Signals analyzed</span>
-      <strong>{result.signal_count ?? '—'}</strong>
-    </div>
+  <div>
+    <span>Positive signals</span>
+    <strong>{result.positive_signal_count ?? '—'}</strong>
+  </div>
 
-    <div>
-      <span>Positive signals</span>
-      <strong>{result.positive_signal_count ?? '—'}</strong>
-    </div>
+  <div>
+    <span>Risk signals</span>
+    <strong>{result.negative_signal_count ?? '—'}</strong>
+  </div>
 
-    <div>
-      <span>Risk signals</span>
-      <strong>{result.negative_signal_count ?? '—'}</strong>
-    </div>
+  <div>
+    <span>Analysis type</span>
+    <strong>{result.insight_type}</strong>
+  </div>
+</section>
 
-    <div>
-      <span>Analysis type</span>
-      <strong>{result.insight_type}</strong>
-    </div>
 
-  </section>
+<!-- RESULT ACTIONS -->
+<div class="insight-actions">
+  <button
+    type="button"
+    class="insight-action primary-action"
+    on:click={onCopy}
+  >
+    Copy Analysis
+  </button>
+
+  <button
+    type="button"
+    class="insight-action save-action"
+    class:saved={isSaved}
+    on:click={saveCurrentAnalysis}
+    disabled={isSaved}
+  >
+    {#if isSaved}
+      Saved ✓
+    {:else}
+      Save to Workspace
+    {/if}
+  </button>
+
+  <button
+    type="button"
+    class="insight-action export-action"
+    disabled
+  >
+    Export
+    <span>Coming Soon</span>
+  </button>
+</div>
+
+{#if savedLabel}
+  <div class="saved-message">
+    {savedLabel}
+  </div>
+{/if}
 
 </div>
 
@@ -361,6 +430,103 @@
     overflow-wrap: anywhere;
   }
 
+.insight-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  width: 100%;
+  padding-top: 14px;
+}
+
+.insight-actions > .insight-action {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 42px;
+
+  flex: 0 0 auto !important;
+
+  padding: 0 15px;
+
+  border: 1px solid rgba(255, 255, 255, .13);
+  border-radius: 5px;
+
+  background: rgba(255, 255, 255, .035);
+  color: #c9d3ec;
+
+  font-family: inherit;
+  font-weight: 800;
+}
+
+.insight-actions .primary-action {
+  border-color: rgba(255, 0, 127, .5);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(148, 0, 211, .55),
+      rgba(255, 0, 127, .55)
+    );
+
+  color: white;
+  cursor: pointer;
+}
+
+.insight-actions .save-action {
+  border-color: rgba(0, 245, 212, .28);
+  background: rgba(0, 245, 212, .06);
+  color: #00f5d4;
+  cursor: pointer;
+}
+
+.insight-actions .save-action.saved {
+  border-color: rgba(0, 245, 212, .35);
+  background: rgba(0, 245, 212, .10);
+  color: #00f5d4;
+  opacity: 1;
+  cursor: default;
+}
+
+.insight-actions .insight-action:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.insight-actions .insight-action span {
+  margin-left: 7px;
+  color: #8290b3;
+  font-size: .63rem;
+  text-transform: uppercase;
+}
+
+.insight-actions .save-action:hover:not(:disabled) {
+  background: rgba(0, 245, 212, .12);
+}
+
+.insight-actions .export-action {
+  border-color: rgba(255, 255, 255, .13);
+  background: rgba(255, 255, 255, .035);
+  color: #c9d3ec;
+}
+
+.saved-message {
+  padding: 10px 12px;
+
+  border: 1px solid rgba(0, 245, 212, .25);
+
+  background: rgba(0, 245, 212, .06);
+  color: #00f5d4;
+
+  font-size: .78rem;
+  font-weight: 800;
+}
 
   /* RESPONSIVE */
 

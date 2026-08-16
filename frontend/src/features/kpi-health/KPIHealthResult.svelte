@@ -1,35 +1,129 @@
 <script>
-    export let result;
+  import { saveAnalysis } from '../../lib/analysisStorage.js';
 
-    $: score = Number(result?.overall_score ?? 0);
+  export let result;
+  export let inputText = '';
 
-    $: healthLabel =
-        score >= 90
-            ? "Excellent"
-            : score >= 75
-                ? "Healthy"
-                : score >= 60
-                    ? "Watch"
-                    : score >= 40
-                        ? "At Risk"
-                        : "Critical";
+  let isSaved = false;
+  let savedLabel = '';
 
-    $: healthMessage =
-        score >= 90
-            ? "Business performance is strong with limited immediate concern."
-            : score >= 75
-                ? "Overall performance is healthy, with a few areas that warrant monitoring."
-                : score >= 60
-                    ? "Performance is mixed and several indicators should be reviewed closely."
-                    : score >= 40
-                        ? "Multiple performance risks are present and leadership action is recommended."
-                        : "The KPI profile indicates significant business pressure requiring immediate attention.";
+$: score = Number(result?.overall_score ?? 0);
+
+$: healthLabel =
+  score >= 90
+    ? 'Excellent'
+    : score >= 75
+      ? 'Healthy'
+      : score >= 60
+        ? 'Watch'
+        : score >= 40
+          ? 'At Risk'
+          : 'Critical';
+
+$: healthMessage =
+  score >= 90
+    ? 'Business performance is strong with limited immediate concern.'
+    : score >= 75
+      ? 'Overall performance is healthy, with a few areas that warrant monitoring.'
+      : score >= 60
+        ? 'Performance is mixed and several indicators should be reviewed closely.'
+        : score >= 40
+          ? 'Multiple performance risks are present and leadership action is recommended.'
+          : 'The KPI profile indicates significant business pressure requiring immediate attention.';
+
+  function copyAnalysis() {
+    const output = [
+      `Overall Health Score: ${result.overall_score}%`,
+      '',
+      `Summary:`,
+      result.summary,
+      '',
+      `Strengths:`,
+      ...(result.strengths ?? []).map((item) => `- ${item}`),
+      '',
+      `Concerns:`,
+      ...(result.concerns ?? []).map((item) => `- ${item}`),
+      '',
+      `Recommendations:`,
+      ...(result.recommendations ?? []).map((item) => `- ${item}`)
+    ].join('\n');
+
+    navigator.clipboard.writeText(output);
+  }
+
+  function saveCurrentAnalysis() {
+    if (isSaved) return;
+
+    saveAnalysis({
+      toolId: 'kpi-health',
+      toolName: 'KPI Health Checker',
+
+      title: 'KPI Health Analysis',
+
+      status: `${result.overall_score}% Health Score`,
+
+      preview:
+        result.summary ||
+        result.concerns?.[0] ||
+        inputText.slice(0, 140),
+
+      input: inputText,
+      result
+    });
+
+    isSaved = true;
+    savedLabel = 'Saved to Workspace';
+
+    setTimeout(() => {
+      savedLabel = '';
+    }, 1800);
+  }
 </script>
 
 <div class="health-report">
 
-    <section class="health-overview">
+<div class="health-actions">
 
+  <button
+    type="button"
+    class="copy-action"
+    on:click={copyAnalysis}
+  >
+    Copy Analysis
+  </button>
+
+  <button
+    type="button"
+    class="save-action"
+    class:saved={isSaved}
+    on:click={saveCurrentAnalysis}
+    disabled={isSaved}
+  >
+    {#if isSaved}
+      Saved ✓
+    {:else}
+      Save to Workspace
+    {/if}
+  </button>
+
+  <button
+    type="button"
+    class="export-action"
+    disabled
+  >
+    Export
+    <span>Coming Soon</span>
+  </button>
+
+</div>
+
+{#if savedLabel}
+  <div class="saved-message">
+    {savedLabel}
+  </div>
+{/if}
+ <section class="health-overview">
+        
         <div class="score-card">
 
             <div class="score-top">
@@ -215,30 +309,7 @@
         </div>
 
     </section>
-
-
-    <div class="actions">
-
-        <button
-            type="button"
-            class="action primary"
-            disabled
-        >
-            Save Assessment
-            <span>Coming Soon</span>
-        </button>
-
-        <button
-            type="button"
-            class="action"
-            disabled
-        >
-            Export
-            <span>Coming Soon</span>
-        </button>
-
-    </div>
-
+    
 </div>
 
 
@@ -735,6 +806,69 @@
         text-transform: uppercase;
     }
 
+.health-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.health-actions button {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 5px;
+  font-family: inherit;
+  font-weight: 800;
+}
+
+.copy-action {
+  border: 1px solid rgba(255, 0, 127, .5);
+  background: linear-gradient(
+    90deg,
+    rgba(148, 0, 211, .7),
+    rgba(255, 0, 127, .7)
+  );
+  color: white;
+  cursor: pointer;
+}
+
+.save-action {
+  border: 1px solid rgba(0, 245, 212, .42);
+  background: rgba(0, 245, 212, .06);
+  color: #00f5d4;
+  cursor: pointer;
+}
+
+.save-action:hover:not(:disabled) {
+  background: rgba(0, 245, 212, .12);
+}
+
+.save-action.saved {
+  opacity: .7;
+  cursor: default;
+}
+
+.export-action {
+  border: 1px solid rgba(255, 255, 255, .13);
+  background: rgba(255, 255, 255, .035);
+  color: #8290b3;
+  cursor: not-allowed;
+}
+
+.export-action span {
+  margin-left: 6px;
+  font-size: .61rem;
+  text-transform: uppercase;
+}
+
+.saved-message {
+  padding: 10px 13px;
+  border: 1px solid rgba(0, 245, 212, .22);
+  background: rgba(0, 245, 212, .05);
+  color: #00f5d4;
+  font-size: .78rem;
+  font-weight: 700;
+}
 
     /* RESPONSIVE */
 

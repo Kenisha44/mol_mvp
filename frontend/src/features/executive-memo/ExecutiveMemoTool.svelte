@@ -270,9 +270,10 @@
         {:else if result}
 
             <ExecutiveMemoResult
-                {result}
-                onCopy={copyMemo}
-            />
+    {result}
+    inputText={notes}
+    onCopy={copyMemo}
+/>
 
         {:else}
 

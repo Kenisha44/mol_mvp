@@ -214,10 +214,11 @@
     {#if loading}
       <LoadingState />
     {:else if result}
-      <DashboardNarrativeResult
-        {result}
-        onCopy={() => copyText(outputText(), 'Narrative copied')}
-      />
+<DashboardNarrativeResult
+  {result}
+  inputText={inputText}
+  onCopy={() => copyText(outputText(), 'Narrative copied')}
+/>
     {:else}
       <EmptyState
         title={tool.emptyTitle}

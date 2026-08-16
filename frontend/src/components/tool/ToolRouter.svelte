@@ -6,8 +6,9 @@
   import InsightTool from '../../features/insights/InsightTool.svelte';
   import DashboardNarrativeTool from '../../features/dashboard-narrative/DashboardNarrativeTool.svelte';
   import ExecutiveMemoTool from '../../features/executive-memo/ExecutiveMemoTool.svelte';
-  import KPIHealthTool from "../../features/kpi-health/KPIHealthTool.svelte";
-  
+  import KPIHealthTool from '../../features/kpi-health/KPIHealthTool.svelte';
+  import WorkspaceView from '../../features/workspace/WorkspaceView.svelte';
+
   export let activeTool = 'clarity';
 
   $: selectedTool =
@@ -16,16 +17,25 @@
 
 {#if activeTool === 'clarity'}
   <ClarityTool tool={selectedTool} />
+
 {:else if activeTool === 'kpi-cleaner'}
   <KpiCleanerTool tool={selectedTool} />
+
 {:else if activeTool === 'insights'}
   <InsightTool tool={selectedTool} />
-{:else if activeTool === "kpi-health"}
-    <KPIHealthTool tool={selectedTool}/>
+
 {:else if activeTool === 'dashboard'}
   <DashboardNarrativeTool tool={selectedTool} />
+
 {:else if activeTool === 'executive-memo'}
   <ExecutiveMemoTool tool={selectedTool} />
+
+{:else if activeTool === 'kpi-health'}
+  <KPIHealthTool tool={selectedTool} />
+
+{:else if activeTool === 'workspace'}
+  <WorkspaceView />
+
 {:else}
   <p>Tool not found: {activeTool}</p>
 {/if}

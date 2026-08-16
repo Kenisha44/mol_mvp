@@ -241,8 +241,9 @@
         {:else if result}
 
             <KPIHealthResult
-                {result}
-            />
+    {result}
+    inputText={data}
+/>
 
         {:else}
 

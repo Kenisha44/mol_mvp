@@ -1,6 +1,44 @@
 <script>
+  import { saveAnalysis } from '../../lib/analysisStorage.js';
+
   export let result;
   export let onCopy = () => {};
+  export let inputText = '';
+
+  let isSaved = false;
+  let savedLabel = '';
+
+  function saveCurrentAnalysis() {
+    if (isSaved) return;
+
+    saveAnalysis({
+      toolId: 'executive-memo',
+      toolName: 'Executive Memo Studio',
+
+      title:
+        result.title ||
+        'Executive Memo',
+
+      status:
+        result.memo_type ||
+        'Executive Ready',
+
+      preview:
+        result.summary ||
+        result.background ||
+        inputText.slice(0, 140),
+
+      input: inputText,
+      result
+    });
+
+    isSaved = true;
+    savedLabel = 'Saved to Workspace';
+
+    setTimeout(() => {
+      savedLabel = '';
+    }, 1800);
+  }
 </script>
 
 <div class="memo-report">
@@ -8,19 +46,56 @@
   <section class="memo-document">
 
     <div class="memo-header">
+
       <div>
         <p class="eyebrow">EXECUTIVE MEMO</p>
         <h2>{result.title}</h2>
       </div>
 
-      <button
-        type="button"
-        class="copy-button"
-        on:click={onCopy}
-      >
-        Copy Memo
-      </button>
+      <div class="memo-actions">
+
+        <button
+          type="button"
+          class="copy-action"
+          on:click={onCopy}
+        >
+          Copy Memo
+        </button>
+
+        <button
+          type="button"
+          class="save-action"
+          class:saved={isSaved}
+          on:click={saveCurrentAnalysis}
+          disabled={isSaved}
+        >
+          {#if isSaved}
+            Saved ✓
+          {:else}
+            Save to Workspace
+          {/if}
+        </button>
+
+        <button
+          type="button"
+          class="export-action"
+          disabled
+        >
+          Export
+          <span>Coming Soon</span>
+        </button>
+
+      </div>
+
     </div>
+
+
+    {#if savedLabel}
+      <div class="saved-message">
+        {savedLabel}
+      </div>
+    {/if}
+
 
     <div class="memo-meta">
       <span>Leadership Communication</span>
@@ -114,48 +189,6 @@
       </p>
 
     </section>
-
-
-    <div class="memo-actions">
-
-      <button
-        type="button"
-        class="action primary"
-        on:click={onCopy}
-      >
-        Copy Full Memo
-      </button>
-
-      <button
-        type="button"
-        class="action"
-        disabled
-      >
-        Save
-        <span>Coming Soon</span>
-      </button>
-
-      <button
-        type="button"
-        class="action"
-        disabled
-      >
-        Export DOCX
-        <span>Coming Soon</span>
-      </button>
-
-      <button
-        type="button"
-        class="action"
-        disabled
-      >
-        Export PDF
-        <span>Coming Soon</span>
-      </button>
-
-    </div>
-
-  </section>
 
 </div>
 
@@ -408,50 +441,69 @@
     padding-top: 4px;
   }
 
-  .action {
-    min-height: 42px;
+.memo-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 
-    padding: 0 15px;
+.memo-actions button {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 5px;
+  font-family: inherit;
+  font-weight: 800;
+}
 
-    border: 1px solid rgba(255,255,255,.13);
-    border-radius: 5px;
+.copy-action {
+  border: 1px solid rgba(255, 0, 127, .5);
+  background: linear-gradient(
+    90deg,
+    rgba(148, 0, 211, .7),
+    rgba(255, 0, 127, .7)
+  );
+  color: white;
+  cursor: pointer;
+}
 
-    background: rgba(255,255,255,.035);
-    color: #c9d3ec;
+.save-action {
+  border: 1px solid rgba(0, 245, 212, .42);
+  background: rgba(0, 245, 212, .06);
+  color: #00f5d4;
+  cursor: pointer;
+}
 
-    font-weight: 800;
-  }
+.save-action:hover:not(:disabled) {
+  background: rgba(0, 245, 212, .12);
+}
 
-  .primary {
-    border-color: rgba(255,0,127,.5);
+.save-action.saved {
+  opacity: .7;
+  cursor: default;
+}
 
-    background:
-      linear-gradient(
-        90deg,
-        rgba(148,0,211,.55),
-        rgba(255,0,127,.55)
-      );
+.export-action {
+  border: 1px solid rgba(255, 255, 255, .13);
+  background: rgba(255, 255, 255, .035);
+  color: #8290b3;
+  cursor: not-allowed;
+}
 
-    color: white;
+.export-action span {
+  margin-left: 6px;
+  font-size: .61rem;
+  text-transform: uppercase;
+}
 
-    cursor: pointer;
-  }
-
-  .action:disabled {
-    opacity: .45;
-
-    cursor: not-allowed;
-  }
-
-  .action span {
-    margin-left: 7px;
-
-    color: #8290b3;
-
-    font-size: .63rem;
-    text-transform: uppercase;
-  }
-
+.saved-message {
+  padding: 10px 13px;
+  border: 1px solid rgba(0, 245, 212, .22);
+  background: rgba(0, 245, 212, .05);
+  color: #00f5d4;
+  font-size: .78rem;
+  font-weight: 700;
+}
 
   /* RESPONSIVE */
 

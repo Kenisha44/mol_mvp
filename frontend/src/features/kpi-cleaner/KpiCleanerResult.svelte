@@ -1,6 +1,12 @@
 <script>
+  import { saveAnalysis } from '../../lib/analysisStorage.js';
+
   export let result;
   export let onCopy = () => {};
+  export let inputText = '';
+
+  let isSaved = false;
+  let savedLabel = '';
 
   $: issues = Number(result?.issues_found ?? 0);
 
@@ -21,6 +27,29 @@
         : issues <= 5
           ? 'Several KPI labels need normalization for consistent reporting.'
           : 'The KPI set contains significant inconsistencies that should be standardized.';
+
+  function saveCurrentAnalysis() {
+    if (isSaved) return;
+
+    saveAnalysis({
+      toolId: 'kpi-cleaner',
+      toolName: 'KPI Cleaner',
+      title: 'KPI Cleanup Analysis',
+      status: `${result.label} • ${issues} issue${issues === 1 ? '' : 's'}`,
+      preview:
+        result.result ||
+        inputText.slice(0, 140),
+      input: inputText,
+      result
+    });
+
+    isSaved = true;
+    savedLabel = 'Saved to Workspace';
+
+    setTimeout(() => {
+      savedLabel = '';
+    }, 1800);
+  }
 </script>
 
 <div class="kpi-result">
@@ -121,15 +150,24 @@
     >
       Copy Analysis
     </button>
-
-    <button
-      type="button"
-      class="action"
-      disabled
-    >
-      Save
-      <span>Coming Soon</span>
-    </button>
+{#if savedLabel}
+  <div class="saved-message">
+    {savedLabel}
+  </div>
+{/if}
+<button
+  type="button"
+  class="action save-action"
+  class:saved={isSaved}
+  on:click={saveCurrentAnalysis}
+  disabled={isSaved}
+>
+  {#if isSaved}
+    Saved ✓
+  {:else}
+    Save to Workspace
+  {/if}
+</button>
 
     <button
       type="button"
@@ -401,6 +439,37 @@
     font-size: .63rem;
     text-transform: uppercase;
   }
+
+.save-action {
+  border-color: rgba(0, 245, 212, .28);
+  background: rgba(0, 245, 212, .06);
+  color: #00f5d4;
+  cursor: pointer;
+}
+
+.save-action:hover:not(:disabled) {
+  background: rgba(0, 245, 212, .12);
+}
+
+.save-action.saved {
+  border-color: rgba(0, 245, 212, .35);
+  background: rgba(0, 245, 212, .10);
+  color: #00f5d4;
+  opacity: 1;
+  cursor: default;
+}
+
+.saved-message {
+  padding: 10px 12px;
+
+  border: 1px solid rgba(0, 245, 212, .25);
+
+  background: rgba(0, 245, 212, .06);
+  color: #00f5d4;
+
+  font-size: .78rem;
+  font-weight: 800;
+}
 
   @media (max-width: 1050px) {
     .result-overview,

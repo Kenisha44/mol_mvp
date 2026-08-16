@@ -5,9 +5,24 @@
   export let onSelectTool = () => {};
 
   const workspaceItems = [
-    { label: 'Workspace', sub: 'Saved analyses & history' },
-    { label: 'Exports', sub: 'Download your outputs' },
-    { label: 'Settings', sub: 'Preferences & configuration' }
+    {
+      id: 'workspace',
+      label: 'Workspace',
+      sub: 'Saved analyses & history',
+      enabled: true
+    },
+    {
+      id: 'exports',
+      label: 'Exports',
+      sub: 'Download your outputs',
+      enabled: false
+    },
+    {
+      id: 'settings',
+      label: 'Settings',
+      sub: 'Preferences & configuration',
+      enabled: false
+    }
   ];
 </script>
 
@@ -41,16 +56,23 @@
   <div class="section">
     <h3>Workspace</h3>
 
-    {#each workspaceItems as item}
-      <button
-        type="button"
-        class="nav-item muted"
-        disabled
-      >
-        <strong>{item.label}</strong>
-        <span>{item.sub}</span>
-      </button>
-    {/each}
+{#each workspaceItems as item}
+  <button
+    type="button"
+    class="nav-item"
+    class:active={activeTool === item.id}
+    class:muted={!item.enabled}
+    disabled={!item.enabled}
+    on:click={() => item.enabled && onSelectTool(item.id)}
+  >
+    <strong>{item.label}</strong>
+    <span>{item.sub}</span>
+
+    {#if !item.enabled}
+      <small>Coming Soon</small>
+    {/if}
+  </button>
+{/each}
   </div>
 
   <div class="upgrade">
@@ -169,4 +191,25 @@
     display: block;
     margin-bottom: 6px;
   }
+
+  .nav-item small {
+  display: inline-block;
+  margin-top: 6px;
+  color: #7184b0;
+  font-size: .62rem;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.nav-item.muted {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.nav-item.muted:hover {
+  transform: none;
+  background: transparent;
+  border-color: transparent;
+}
 </style>
