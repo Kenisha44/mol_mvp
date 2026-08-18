@@ -3,11 +3,12 @@ from fastapi.responses import StreamingResponse
 
 from .schemas import AnalysisExportRequest
 from .service import build_analysis_pdf
+from .docx_service import build_analysis_docx
 
 
 router = APIRouter(
     prefix="/exports",
-    tags=["Exports"]
+    tags=["Exports"],
 )
 
 
@@ -26,6 +27,32 @@ def export_pdf(payload: AnalysisExportRequest):
     return StreamingResponse(
         pdf_buffer,
         media_type="application/pdf",
+        headers={
+            "Content-Disposition":
+                f'attachment; filename="{filename}"'
+        },
+    )
+
+
+@router.post("/docx")
+def export_docx(payload: AnalysisExportRequest):
+    docx_buffer = build_analysis_docx(payload)
+
+    safe_title = (
+        payload.title
+        .lower()
+        .replace(" ", "-")
+    )
+
+    filename = f"{safe_title or 'mol-analysis'}.docx"
+
+    return StreamingResponse(
+        docx_buffer,
+        media_type=(
+            "application/"
+            "vnd.openxmlformats-officedocument."
+            "wordprocessingml.document"
+        ),
         headers={
             "Content-Disposition":
                 f'attachment; filename="{filename}"'
