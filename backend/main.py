@@ -12,6 +12,7 @@ from app.features.kpi_health.routes import (
     router as kpi_health_router
 )
 
+from app.features.exports.routes import router as exports_router
 
 app = FastAPI(
     title="Moon Onyx Labs API",
@@ -26,6 +27,7 @@ app.include_router(kpi_cleaner_router)
 app.include_router(insights_router)
 app.include_router(dashboard_narrative_router)
 app.include_router(kpi_health_router)
+app.include_router(exports_router)
 
 @app.get("/")
 def root():

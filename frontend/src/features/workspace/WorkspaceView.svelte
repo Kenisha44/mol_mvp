@@ -5,7 +5,12 @@
     clearSavedAnalyses
   } from "../../lib/analysisStorage.js";
 
+  import { exportAnalysisAsText } from "../../lib/exportUtils.js";
+  import { exportAnalysisPDF } from "../../lib/exportService.js";
+
   let savedAnalyses = [];
+  let exportingId = null;
+  let exportError = ""; 
   let selectedAnalysis = null;
 
   let searchTerm = "";
@@ -70,6 +75,25 @@ function closeAnalysis() {
   }
 
   loadAnalyses();
+
+  async function downloadPDF(item) {
+  if (exportingId) return;
+
+  exportingId = item.id;
+  exportError = "";
+
+  try {
+    await exportAnalysisPDF(item);
+  } catch (err) {
+    console.error(err);
+
+    exportError =
+      err?.message ||
+      "Unable to export PDF.";
+  } finally {
+    exportingId = null;
+  }
+}
 </script>
 
 <div class="workspace-page">
@@ -178,39 +202,25 @@ function closeAnalysis() {
 
   <section class="analysis-viewer">
 
-    <div class="viewer-header">
+<div class="viewer-actions">
 
-      <div>
-        <p class="eyebrow">SAVED ANALYSIS</p>
+  <button
+    type="button"
+    class="export-text-button"
+    on:click={() => exportAnalysisAsText(selectedAnalysis)}
+  >
+    Download TXT
+  </button>
 
-        <h2>
-          {selectedAnalysis.title ?? "Saved Analysis"}
-        </h2>
+  <button
+    type="button"
+    class="close-viewer"
+    on:click={closeAnalysis}
+  >
+    Back to History
+  </button>
 
-        <div class="viewer-meta">
-          <span>
-            {selectedAnalysis.toolName ?? "MOL Analysis"}
-          </span>
-
-          <span>
-            {selectedAnalysis.status ?? "Saved"}
-          </span>
-
-          <span>
-            {formatDate(selectedAnalysis.createdAt)}
-          </span>
-        </div>
-      </div>
-
-      <button
-        type="button"
-        class="close-viewer"
-        on:click={closeAnalysis}
-      >
-        Back to History
-      </button>
-
-    </div>
+</div>
 
 
     {#if selectedAnalysis.input}
@@ -456,7 +466,11 @@ function closeAnalysis() {
   {:else if !selectedAnalysis && filteredAnalyses.length > 0}
 
   <div class="history-grid">
-
+{#if exportError}
+  <div class="export-error">
+    {exportError}
+  </div>
+{/if}
       {#each filteredAnalyses as item}
 {#if !selectedAnalysis && savedAnalyses.length > 0 && filteredAnalyses.length === 0}
 
@@ -524,6 +538,19 @@ function closeAnalysis() {
                 on:click={() => openAnalysis(item)}
                 >
                 Open
+                </button>
+
+                <button
+                    type="button"
+                    class="pdf-button"
+                    on:click={() => downloadPDF(item)}
+                    disabled={exportingId === item.id}
+                >
+                    {#if exportingId === item.id}
+                    Exporting...
+                    {:else}
+                    PDF
+                    {/if}
                 </button>
 
               <button
@@ -853,14 +880,12 @@ function closeAnalysis() {
 
 
   .open-button,
+  .pdf-button,
   .delete-button {
     padding: 7px 10px;
-
     font-weight: 800;
-
     cursor: pointer;
-  }
-
+    }
 
   .open-button {
     border:
@@ -1148,6 +1173,68 @@ function closeAnalysis() {
 
   cursor:
     pointer;
+}
+
+.viewer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.export-text-button {
+  min-height: 38px;
+  padding: 0 13px;
+
+  border: 1px solid rgba(255, 0, 127, .42);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(148, 0, 211, .5),
+      rgba(255, 0, 127, .5)
+    );
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.export-text-button:hover {
+  border-color: rgba(255, 0, 127, .7);
+}
+
+.pdf-button {
+  border: 1px solid rgba(255, 0, 127, .35);
+  background: rgba(255, 0, 127, .06);
+  color: #ff5bad;
+}
+
+.pdf-button:hover:not(:disabled) {
+  background: rgba(255, 0, 127, .12);
+}
+
+.pdf-button:disabled {
+  opacity: .5;
+  cursor: wait;
+}
+
+.export-error {
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 0, 127, .35);
+  background: rgba(255, 0, 127, .06);
+  color: #ff7dbd;
+  font-size: .8rem;
+}
+
+@media (max-width: 640px) {
+  .viewer-actions {
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 900px) {
