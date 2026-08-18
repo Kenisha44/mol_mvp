@@ -1,19 +1,56 @@
-const API_BASE = 'http://127.0.0.1:8000';
+const API_BASE_URL = "http://127.0.0.1:8000";
 
-export async function exportAnalysisPDF(analysis) {
-  const response = await fetch(`${API_BASE}/exports/pdf`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(analysis)
-  });
+
+function getFilename(response, fallback) {
+  const disposition = response.headers.get("content-disposition");
+
+  if (!disposition) {
+    return fallback;
+  }
+
+  const match = disposition.match(/filename="?([^"]+)"?/i);
+
+  return match?.[1] || fallback;
+}
+
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+
+  document.body.appendChild(link);
+
+  link.click();
+  link.remove();
+
+  URL.revokeObjectURL(url);
+}
+
+
+async function exportAnalysis(endpoint, payload, fallbackFilename) {
+  const response = await fetch(
+    `${API_BASE_URL}/exports/${endpoint}`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify(payload)
+    }
+  );
 
   if (!response.ok) {
-    let message = 'Unable to export PDF.';
+    let message = `Unable to export ${endpoint.toUpperCase()}.`;
 
     try {
       const errorData = await response.json();
+
       message =
         errorData?.detail ||
         errorData?.message ||
@@ -27,34 +64,30 @@ export async function exportAnalysisPDF(analysis) {
 
   const blob = await response.blob();
 
-  const disposition =
-    response.headers.get('content-disposition');
+  const filename = getFilename(
+    response,
+    fallbackFilename
+  );
 
-  let filename = 'mol-analysis.pdf';
-
-  if (disposition) {
-    const match = disposition.match(
-      /filename="?([^"]+)"?/i
-    );
-
-    if (match?.[1]) {
-      filename = match[1];
-    }
-  }
-
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement('a');
-
-  link.href = url;
-  link.download = filename;
-
-  document.body.appendChild(link);
-
-  link.click();
-  link.remove();
-
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, filename);
 
   return filename;
+}
+
+
+export async function exportAnalysisPDF(payload) {
+  return exportAnalysis(
+    "pdf",
+    payload,
+    "mol-analysis.pdf"
+  );
+}
+
+
+export async function exportAnalysisDOCX(payload) {
+  return exportAnalysis(
+    "docx",
+    payload,
+    "mol-analysis.docx"
+  );
 }

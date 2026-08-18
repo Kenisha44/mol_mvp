@@ -1,11 +1,9 @@
 <script>
-  import { saveAnalysis } from '../../lib/analysisStorage.js';
+  import ExportActions from '../../components/ui/ExportActions.svelte';
 
   export let result;
   export let onCopy = () => {};
   export let inputText = '';
-
-  let savedLabel = '';
 
   $: score = Number(result?.score ?? 0);
 
@@ -26,40 +24,22 @@
         : score >= 60
           ? 'The core message is present, but the communication can be sharper and more executive-focused.'
           : 'The content would benefit from significant simplification, prioritization, and clearer direction.';
-let isSaved = false;
-
-function saveCurrentAnalysis() {
-  if (isSaved) return;
-
-  saveAnalysis({
-    toolId: 'clarity',
-    toolName: 'Executive Clarity Analyzer',
-    title: 'Executive Clarity Analysis',
-    status: `${result.label} • ${result.score}/100`,
-    preview:
-      result.refined_text ||
-      result.recommendation ||
-      inputText.slice(0, 140),
-    input: inputText,
-    result
-  });
-
-  isSaved = true;
-  savedLabel = 'Saved to Workspace';
-
-  setTimeout(() => {
-    savedLabel = '';
-  }, 1800);
-}
-
 </script>
 
+
 <div class="clarity-result">
+
+  <!-- SCORE + STATUS -->
   <section class="result-overview">
+
     <div class="score-card">
+
       <div class="score-top">
+
         <div>
-          <p class="eyebrow">Clarity Score</p>
+          <p class="eyebrow">
+            Clarity Score
+          </p>
 
           <div class="score-line">
             <strong>{score}</strong>
@@ -70,7 +50,9 @@ function saveCurrentAnalysis() {
         <span class="score-status">
           {scoreLabel}
         </span>
+
       </div>
+
 
       <div class="score-track">
         <div
@@ -79,34 +61,63 @@ function saveCurrentAnalysis() {
         ></div>
       </div>
 
+
       <p class="score-message">
         {scoreMessage}
       </p>
+
     </div>
 
-<div class="recommendation-card">
-  <p class="eyebrow">RECOMMENDATION</p>
-  <p>{result.recommendation}</p>
-</div>
+
     <div class="status-card">
-      <p class="eyebrow">Analysis Status</p>
+
+      <p class="eyebrow">
+        Analysis Status
+      </p>
 
       <strong>
         {result.label}
       </strong>
 
       <span>
-        MOL reviewed the copy for executive clarity, focus, and decision-readiness.
+        MOL reviewed the copy for executive clarity,
+        focus, and decision-readiness.
       </span>
+
     </div>
+
   </section>
 
+
+  <!-- RECOMMENDATION -->
+  <section class="recommendation-card">
+
+    <p class="eyebrow">
+      Recommendation
+    </p>
+
+    <p>
+      {result.recommendation}
+    </p>
+
+  </section>
+
+
+  <!-- REFINED COPY -->
   <section class="rewrite-card">
+
     <div class="card-header">
+
       <div>
-        <p class="eyebrow">Executive-Ready Version</p>
-        <h3>Refined Executive Copy</h3>
+        <p class="eyebrow">
+          Executive-Ready Version
+        </p>
+
+        <h3>
+          Refined Executive Copy
+        </h3>
       </div>
+
 
       <button
         type="button"
@@ -115,87 +126,114 @@ function saveCurrentAnalysis() {
       >
         Copy Output
       </button>
+
     </div>
 
-   <div class="refined-copy">
-  <p>{result.refined_text}</p>
-</div>
+
+    <div class="refined-copy">
+      <p>
+        {result.refined_text}
+      </p>
+    </div>
+
   </section>
 
+
+  <!-- ANALYSIS SIGNALS -->
   <section class="analysis-footer">
-    <div class="signal">
-      <span class="signal-icon">01</span>
-
-      <div>
-        <strong>Executive Focus</strong>
-        <p>
-          Prioritizes the information leadership needs to understand first.
-        </p>
-      </div>
-    </div>
 
     <div class="signal">
-      <span class="signal-icon">02</span>
+
+      <span class="signal-icon">
+        01
+      </span>
 
       <div>
-        <strong>Decision Clarity</strong>
+        <strong>
+          Executive Focus
+        </strong>
+
         <p>
-          Pushes the communication toward implications and next-step thinking.
+          Prioritizes the information leadership
+          needs to understand first.
         </p>
       </div>
+
     </div>
+
 
     <div class="signal">
-      <span class="signal-icon">03</span>
+
+      <span class="signal-icon">
+        02
+      </span>
 
       <div>
-        <strong>Concise Language</strong>
+        <strong>
+          Decision Clarity
+        </strong>
+
         <p>
-          Reduces unnecessary wording while preserving the core business message.
+          Pushes the communication toward implications
+          and next-step thinking.
         </p>
       </div>
+
     </div>
+
+
+    <div class="signal">
+
+      <span class="signal-icon">
+        03
+      </span>
+
+      <div>
+        <strong>
+          Concise Language
+        </strong>
+
+        <p>
+          Reduces unnecessary wording while preserving
+          the core business message.
+        </p>
+      </div>
+
+    </div>
+
   </section>
 
-  <div class="future-actions">
+
+  <!-- ACTIONS -->
+  <section class="result-actions">
+
     <button
       type="button"
-      class="action primary-action"
+      class="copy-analysis"
       on:click={onCopy}
     >
       Copy Analysis
     </button>
-{#if savedLabel}
-  <div class="saved-message">
-    {savedLabel}
-  </div>
-{/if}
-<button
-  type="button"
-  class="action save-action"
-  class:saved={isSaved}
-  on:click={saveCurrentAnalysis}
-  disabled={isSaved}
->
-  {#if isSaved}
-    Saved ✓
-  {:else}
-    Save to Workspace
-  {/if}
-</button>
 
 
-    <button
-      type="button"
-      class="action"
-      disabled
-      title="Coming with Export Center"
-    >
-      Export
-      <span>Coming Soon</span>
-    </button>
-  </div>
+    <ExportActions
+      toolId="clarity"
+      toolName="Executive Clarity Analyzer"
+      title="Executive Clarity Analysis"
+      status={`${result.label} • ${result.score}/100`}
+      preview={
+        result.refined_text ||
+        result.recommendation ||
+        inputText.slice(0, 140)
+      }
+      input={inputText}
+      {result}
+    />
+
+  </section>
+
 </div>
+
 
 <style>
   .clarity-result {
@@ -203,16 +241,26 @@ function saveCurrentAnalysis() {
     gap: 18px;
   }
 
+
+  /* OVERVIEW */
+
   .result-overview {
     display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(190px, .65fr);
+
+    grid-template-columns:
+      minmax(0, 1.35fr)
+      minmax(190px, .65fr);
+
     gap: 14px;
   }
+
 
   .score-card,
   .status-card,
   .rewrite-card {
-    border: 1px solid rgba(0, 245, 212, .22);
+    border:
+      1px solid rgba(0, 245, 212, .22);
+
     background:
       linear-gradient(
         145deg,
@@ -221,283 +269,360 @@ function saveCurrentAnalysis() {
       );
   }
 
+
   .score-card,
   .status-card {
     padding: 20px;
   }
 
+
   .eyebrow {
     margin: 0 0 8px;
+
     color: #00f5d4;
+
     font-size: .7rem;
     font-weight: 900;
     letter-spacing: .13em;
+
     text-transform: uppercase;
   }
 
+
+  /* SCORE */
+
   .score-top {
     display: flex;
+
     justify-content: space-between;
-    gap: 20px;
     align-items: flex-start;
+
+    gap: 20px;
   }
+
 
   .score-line {
     display: flex;
     align-items: flex-end;
+
     line-height: 1;
   }
 
+
   .score-line strong {
     color: #f7f7ff;
+
     font-size: 3.3rem;
     font-weight: 900;
   }
 
+
   .score-line span {
     padding-bottom: 6px;
+
     color: #8190b6;
+
     font-size: .9rem;
     font-weight: 700;
   }
 
+
   .score-status {
     padding: 7px 10px;
-    border: 1px solid rgba(255, 0, 127, .38);
-    background: rgba(255, 0, 127, .08);
+
+    border:
+      1px solid rgba(255, 0, 127, .38);
+
+    background:
+      rgba(255, 0, 127, .08);
+
     color: #ff5bad;
+
     font-size: .68rem;
     font-weight: 900;
     letter-spacing: .08em;
+
     text-transform: uppercase;
   }
 
+
   .score-track {
     height: 6px;
+
     margin: 18px 0 14px;
+
     overflow: hidden;
-    background: rgba(255, 255, 255, .07);
+
+    background:
+      rgba(255, 255, 255, .07);
   }
+
 
   .score-fill {
     height: 100%;
-    background: linear-gradient(
-      90deg,
-      #9400d3,
-      #ff007f,
-      #00f5d4
-    );
-    transition: width .5s ease;
+
+    background:
+      linear-gradient(
+        90deg,
+        #9400d3,
+        #ff007f,
+        #00f5d4
+      );
+
+    transition:
+      width .5s ease;
   }
+
 
   .score-message {
     margin: 0;
+
     color: #aebbd8;
+
     line-height: 1.55;
+
     font-size: .84rem;
   }
+
+
+  /* STATUS */
 
   .status-card {
     display: flex;
     flex-direction: column;
   }
 
+
   .status-card strong {
     margin-bottom: 9px;
+
     color: #f7f7ff;
+
     font-size: 1.05rem;
   }
 
+
   .status-card span {
     color: #93a1c5;
+
     line-height: 1.5;
+
     font-size: .8rem;
   }
+
+
+  /* RECOMMENDATION */
+
+  .recommendation-card {
+    padding: 18px 20px;
+
+    border:
+      1px solid rgba(0, 245, 212, .20);
+
+    background:
+      rgba(0, 245, 212, .04);
+
+    color: #c7d2ee;
+
+    line-height: 1.55;
+  }
+
+
+  .recommendation-card p:last-child {
+    margin-bottom: 0;
+  }
+
+
+  /* REFINED COPY */
 
   .rewrite-card {
     padding: 22px;
   }
 
+
   .card-header {
     display: flex;
+
     justify-content: space-between;
-    gap: 20px;
     align-items: flex-start;
+
+    gap: 20px;
+
     margin-bottom: 18px;
   }
 
+
   h3 {
     margin: 0;
+
     color: #f7f7ff;
+
     font-size: 1.1rem;
   }
 
+
   .copy-button {
     flex: 0 0 auto;
+
     padding: 9px 12px;
-    border: 1px solid rgba(0, 245, 212, .32);
+
+    border:
+      1px solid rgba(0, 245, 212, .32);
+
     border-radius: 5px;
-    background: rgba(0, 245, 212, .06);
+
+    background:
+      rgba(0, 245, 212, .06);
+
     color: #00f5d4;
+
     font-weight: 800;
+
     cursor: pointer;
   }
 
+
   .copy-button:hover {
-    background: rgba(0, 245, 212, .12);
+    background:
+      rgba(0, 245, 212, .12);
   }
 
-  .rewrite {
-    padding: 20px;
-    border-left: 3px solid #ff007f;
-    background: rgba(0, 0, 0, .18);
-    color: #ecf0ff;
+
+  .refined-copy {
+    padding: 22px;
+
+    border-left:
+      3px solid #ff007f;
+
+    background:
+      rgba(5, 8, 23, .45);
+
+    color: #f7f7ff;
+
+    font-size: 1rem;
+
     line-height: 1.7;
+
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
 
+
+  .refined-copy p {
+    margin: 0;
+  }
+
+
+  /* SIGNALS */
+
   .analysis-footer {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+
     gap: 12px;
   }
+
 
   .signal {
     display: flex;
+
     gap: 12px;
+
     padding: 16px;
-    border: 1px solid rgba(255, 255, 255, .08);
-    background: rgba(255, 255, 255, .025);
+
+    border:
+      1px solid rgba(255, 255, 255, .08);
+
+    background:
+      rgba(255, 255, 255, .025);
   }
+
 
   .signal-icon {
     flex: 0 0 28px;
+
     width: 28px;
     height: 28px;
+
     display: grid;
     place-items: center;
-    border: 1px solid rgba(0, 245, 212, .25);
+
+    border:
+      1px solid rgba(0, 245, 212, .25);
+
     color: #00f5d4;
+
     font-size: .64rem;
     font-weight: 900;
   }
 
+
   .signal strong {
     color: #f7f7ff;
+
     font-size: .82rem;
   }
 
+
   .signal p {
     margin: 5px 0 0;
+
     color: #8797bc;
+
     line-height: 1.45;
+
     font-size: .74rem;
   }
 
-  .future-actions {
+
+  /* ACTIONS */
+
+  .result-actions {
     display: flex;
-    gap: 10px;
-    padding-top: 4px;
+
+    align-items: flex-start;
     flex-wrap: wrap;
+
+    gap: 10px;
+
+    padding-top: 4px;
   }
 
-  .action {
-    min-height: 42px;
+
+  .copy-analysis {
+    min-height: 40px;
+
     padding: 0 15px;
-    border: 1px solid rgba(255, 255, 255, .13);
-    border-radius: 5px;
-    background: rgba(255, 255, 255, .035);
-    color: #c9d3ec;
-    font-weight: 800;
-  }
 
-  .primary-action {
-    border-color: rgba(255, 0, 127, .5);
-    background: linear-gradient(
-      90deg,
-      rgba(148, 0, 211, .55),
-      rgba(255, 0, 127, .55)
-    );
+    border:
+      1px solid rgba(255, 0, 127, .5);
+
+    border-radius: 5px;
+
+    background:
+      linear-gradient(
+        90deg,
+        rgba(148, 0, 211, .55),
+        rgba(255, 0, 127, .55)
+      );
+
     color: white;
+
+    font-family: inherit;
+    font-weight: 800;
+
     cursor: pointer;
   }
 
-  .action:disabled {
-    opacity: .45;
-    cursor: not-allowed;
+
+  .copy-analysis:hover {
+    filter: brightness(1.08);
   }
 
-  .action span {
-    margin-left: 7px;
-    color: #8290b3;
-    font-size: .63rem;
-    text-transform: uppercase;
-  }
-.refined-copy {
-  margin-top: 16px;
-  padding: 22px;
 
-  border-left: 3px solid #ff007f;
-  background: rgba(5, 8, 23, 0.45);
-
-  color: #f7f7ff;
-  font-size: 1rem;
-  line-height: 1.7;
-
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.refined-copy p {
-  margin: 0;
-}
-
-.recommendation-card {
-  margin-top: 18px;
-  padding: 18px 20px;
-
-  border: 1px solid rgba(0, 245, 212, 0.2);
-  background: rgba(0, 245, 212, 0.04);
-
-  color: #c7d2ee;
-  line-height: 1.55;
-}
-
-.recommendation-card p:last-child {
-  margin-bottom: 0;
-}
-
-.save-action {
-  border-color: rgba(0, 245, 212, .28);
-  background: rgba(0, 245, 212, .06);
-  color: #00f5d4;
-  cursor: pointer;
-}
-
-.save-action:hover {
-  background: rgba(0, 245, 212, .12);
-}
-
-.saved-message {
-  padding: 10px 12px;
-
-  border: 1px solid rgba(0, 245, 212, .25);
-
-  background: rgba(0, 245, 212, .06);
-  color: #00f5d4;
-
-  font-size: .78rem;
-  font-weight: 800;
-}
-
-.save-action.saved {
-  border-color: rgba(0, 245, 212, .35);
-  background: rgba(0, 245, 212, .10);
-  color: #00f5d4;
-  opacity: 1;
-  cursor: default;
-}
+  /* RESPONSIVE */
 
   @media (max-width: 1050px) {
     .result-overview,
@@ -506,9 +631,14 @@ function saveCurrentAnalysis() {
     }
   }
 
+
   @media (max-width: 640px) {
     .card-header,
     .score-top {
+      flex-direction: column;
+    }
+
+    .result-actions {
       flex-direction: column;
     }
   }

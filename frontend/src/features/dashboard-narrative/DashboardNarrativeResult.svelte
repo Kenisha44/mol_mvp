@@ -1,93 +1,36 @@
 <script>
-  import { saveAnalysis } from '../../lib/analysisStorage.js';
+  import ExportActions from '../../components/ui/ExportActions.svelte';
 
   export let result;
   export let onCopy = () => {};
   export let inputText = '';
-
-  let isSaved = false;
-  let savedLabel = '';
-
-  function saveCurrentAnalysis() {
-    if (isSaved) return;
-
-    saveAnalysis({
-      toolId: 'dashboard',
-      toolName: 'Dashboard Narrative Generator',
-      title:
-        result.performance_status ||
-        'Executive Dashboard Narrative',
-      status:
-        result.label ||
-        result.performance_status ||
-        'Saved',
-      preview:
-        result.executive_summary ||
-        result.outlook ||
-        inputText.slice(0, 140),
-      input: inputText,
-      result
-    });
-
-    isSaved = true;
-    savedLabel = 'Saved to Workspace';
-
-    setTimeout(() => {
-      savedLabel = '';
-    }, 1800);
-  }
-
-  const sections = [
-    {
-      label: 'Executive Summary',
-      icon: '◐',
-      type: 'summary',
-      items: null
-    },
-    {
-      label: 'Key Findings',
-      icon: '◆',
-      type: 'key_findings'
-    },
-    {
-      label: 'Business Risks',
-      icon: '!',
-      type: 'business_risks'
-    },
-    {
-      label: 'Opportunities',
-      icon: '✦',
-      type: 'opportunities'
-    },
-    {
-      label: 'Recommendations',
-      icon: '✓',
-      type: 'recommendations'
-    },
-    {
-      label: 'Action Items',
-      icon: '→',
-      type: 'action_items'
-    }
-  ];
 </script>
+
 
 <div class="narrative-report">
 
+  <!-- OVERVIEW -->
   <section class="overview-grid">
 
     <div class="status-card">
-      <p class="eyebrow">PERFORMANCE STATUS</p>
+      <p class="eyebrow">
+        PERFORMANCE STATUS
+      </p>
 
-      <h3>{result.performance_status}</h3>
+      <h3>
+        {result.performance_status}
+      </h3>
 
       <span class="status-chip">
         {result.label}
       </span>
     </div>
 
+
     <div class="signal-card">
-      <p class="eyebrow">SIGNALS ANALYZED</p>
+      <p class="eyebrow">
+        SIGNALS ANALYZED
+      </p>
 
       <div class="signal-number">
         {result.signal_count}
@@ -101,13 +44,21 @@
   </section>
 
 
+  <!-- EXECUTIVE SUMMARY -->
   <section class="summary-card">
 
     <div class="section-heading">
+
       <div>
-        <p class="eyebrow">EXECUTIVE SUMMARY</p>
-        <h3>Leadership Narrative</h3>
+        <p class="eyebrow">
+          EXECUTIVE SUMMARY
+        </p>
+
+        <h3>
+          Leadership Narrative
+        </h3>
       </div>
+
 
       <button
         type="button"
@@ -116,7 +67,9 @@
       >
         Copy Narrative
       </button>
+
     </div>
+
 
     <div class="summary-copy">
       {result.executive_summary}
@@ -125,17 +78,22 @@
   </section>
 
 
+  <!-- PERFORMANCE DRIVERS + RISKS -->
   <div class="performance-grid">
 
     <section class="report-card positive">
 
-      <div class="number">01</div>
+      <div class="number">
+        01
+      </div>
 
       <p class="eyebrow">
         PERFORMANCE DRIVERS
       </p>
 
-      <h4>What Is Working</h4>
+      <h4>
+        What Is Working
+      </h4>
 
       <p>
         {result.performance_drivers}
@@ -146,13 +104,17 @@
 
     <section class="report-card risk">
 
-      <div class="number">02</div>
+      <div class="number">
+        02
+      </div>
 
       <p class="eyebrow">
         RISKS & WATCH ITEMS
       </p>
 
-      <h4>What Needs Attention</h4>
+      <h4>
+        What Needs Attention
+      </h4>
 
       <p>
         {result.risks}
@@ -163,14 +125,21 @@
   </div>
 
 
+  <!-- RECOMMENDED ACTION -->
   <section class="action-card">
 
-    <div class="number">03</div>
+    <div class="number">
+      03
+    </div>
 
     <div>
-      <p class="eyebrow">RECOMMENDED ACTION</p>
+      <p class="eyebrow">
+        RECOMMENDED ACTION
+      </p>
 
-      <h4>Leadership Priority</h4>
+      <h4>
+        Leadership Priority
+      </h4>
 
       <p>
         {result.recommended_action}
@@ -180,20 +149,28 @@
   </section>
 
 
+  <!-- OUTLOOK -->
   <section class="outlook-card">
 
     <div class="section-heading">
 
       <div>
-        <p class="eyebrow">OUTLOOK</p>
-        <h3>Forward View</h3>
+        <p class="eyebrow">
+          OUTLOOK
+        </p>
+
+        <h3>
+          Forward View
+        </h3>
       </div>
+
 
       <span class="ready-badge">
         EXECUTIVE READY
       </span>
 
     </div>
+
 
     <p class="outlook-copy">
       {result.outlook}
@@ -202,75 +179,94 @@
   </section>
 
 
+  <!-- METRIC SUMMARY -->
   <section class="metric-strip">
 
     <div>
-      <span>Total Signals</span>
-      <strong>{result.signal_count}</strong>
+      <span>
+        Total Signals
+      </span>
+
+      <strong>
+        {result.signal_count ?? '—'}
+      </strong>
     </div>
 
-    <div>
-      <span>Positive Signals</span>
-      <strong>{result.positive_signal_count}</strong>
-    </div>
 
     <div>
-      <span>Risk Signals</span>
-      <strong>{result.negative_signal_count}</strong>
+      <span>
+        Positive Signals
+      </span>
+
+      <strong>
+        {result.positive_signal_count ?? '—'}
+      </strong>
     </div>
 
+
     <div>
-      <span>Performance</span>
-      <strong>{result.performance_status}</strong>
+      <span>
+        Risk Signals
+      </span>
+
+      <strong>
+        {result.negative_signal_count ?? '—'}
+      </strong>
     </div>
+
+
+    <div>
+      <span>
+        Performance
+      </span>
+
+      <strong>
+        {result.performance_status ?? '—'}
+      </strong>
+    </div>
+
+  </section>
+
+
+  <!-- RESULT ACTIONS -->
+  <section class="result-actions">
+
+    <button
+      type="button"
+      class="copy-action"
+      on:click={onCopy}
+    >
+      Copy Narrative
+    </button>
+
+
+    <ExportActions
+      toolId="dashboard"
+      toolName="Dashboard Narrative Generator"
+      title={result.performance_status || 'Executive Dashboard Narrative'}
+      status={
+        result.label ||
+        result.performance_status ||
+        'Executive Ready'
+      }
+      preview={
+        result.executive_summary ||
+        result.outlook ||
+        inputText.slice(0, 140)
+      }
+      input={inputText}
+      {result}
+    />
 
   </section>
 
 </div>
 
-<div class="result-actions">
-  <button
-    type="button"
-    class="copy-action"
-    on:click={onCopy}
-  >
-    Copy Narrative
-  </button>
-
-  <button
-    type="button"
-    class="save-action"
-    class:saved={isSaved}
-    on:click={saveCurrentAnalysis}
-    disabled={isSaved}
-  >
-    {#if isSaved}
-      Saved ✓
-    {:else}
-      Save to Workspace
-    {/if}
-  </button>
-
-  <button
-    type="button"
-    class="export-action"
-    disabled
-  >
-    Export
-    <span>Coming Soon</span>
-  </button>
-</div>
-
-{#if savedLabel}
-  <div class="saved-message">
-    {savedLabel}
-  </div>
-{/if}
 
 <style>
-
   .narrative-report {
     display: grid;
+
     gap: 18px;
 
     width: 100%;
@@ -288,8 +284,10 @@
     font-size: .7rem;
     font-weight: 900;
     letter-spacing: .13em;
+
     text-transform: uppercase;
   }
+
 
   h3,
   h4 {
@@ -298,9 +296,11 @@
     color: #f7f7ff;
   }
 
+
   h3 {
     font-size: 1.1rem;
   }
+
 
   h4 {
     font-size: .95rem;
@@ -319,14 +319,15 @@
     gap: 14px;
   }
 
+
   .status-card,
   .signal-card,
   .summary-card,
   .report-card,
   .action-card,
   .outlook-card {
-
-    border: 1px solid rgba(0, 245, 212, .22);
+    border:
+      1px solid rgba(0, 245, 212, .22);
 
     background:
       linear-gradient(
@@ -336,39 +337,50 @@
       );
   }
 
+
   .status-card,
   .signal-card {
     padding: 20px;
   }
 
+
   .status-card {
     position: relative;
   }
+
 
   .status-chip {
     display: inline-block;
 
     margin-top: 14px;
+
     padding: 7px 10px;
 
-    border: 1px solid rgba(255, 0, 127, .38);
+    border:
+      1px solid rgba(255, 0, 127, .38);
 
-    background: rgba(255, 0, 127, .08);
+    background:
+      rgba(255, 0, 127, .08);
+
     color: #ff5bad;
 
     font-size: .68rem;
     font-weight: 900;
     letter-spacing: .08em;
+
     text-transform: uppercase;
   }
+
 
   .signal-number {
     color: #f7f7ff;
 
     font-size: 3.1rem;
     font-weight: 900;
+
     line-height: 1;
   }
+
 
   .signal-card p:last-child {
     margin: 12px 0 0;
@@ -376,6 +388,7 @@
     color: #93a1c5;
 
     line-height: 1.5;
+
     font-size: .8rem;
   }
 
@@ -386,6 +399,7 @@
   .outlook-card {
     padding: 22px;
   }
+
 
   .section-heading {
     display: flex;
@@ -398,29 +412,39 @@
     margin-bottom: 18px;
   }
 
+
   .copy-button {
     flex: 0 0 auto;
 
     padding: 9px 12px;
 
-    border: 1px solid rgba(0, 245, 212, .32);
+    border:
+      1px solid rgba(0, 245, 212, .32);
+
     border-radius: 5px;
 
-    background: rgba(0, 245, 212, .06);
+    background:
+      rgba(0, 245, 212, .06);
+
     color: #00f5d4;
 
     font-weight: 800;
+
     cursor: pointer;
   }
 
+
   .copy-button:hover {
-    background: rgba(0, 245, 212, .12);
+    background:
+      rgba(0, 245, 212, .12);
   }
+
 
   .summary-copy {
     padding: 22px;
 
-    border-left: 3px solid #ff007f;
+    border-left:
+      3px solid #ff007f;
 
     background:
       radial-gradient(
@@ -433,6 +457,7 @@
     color: #ecf0ff;
 
     font-size: 1rem;
+
     line-height: 1.7;
   }
 
@@ -448,9 +473,11 @@
     gap: 14px;
   }
 
+
   .report-card {
     padding: 20px;
   }
+
 
   .number {
     width: 30px;
@@ -461,7 +488,8 @@
 
     margin-bottom: 16px;
 
-    border: 1px solid rgba(0, 245, 212, .4);
+    border:
+      1px solid rgba(0, 245, 212, .4);
 
     color: #00f5d4;
 
@@ -469,14 +497,15 @@
     font-weight: 900;
   }
 
+
   .report-card h4,
   .action-card h4 {
     margin-bottom: 10px;
   }
 
+
   .report-card p:last-child,
   .action-card p:last-child {
-
     margin: 0;
 
     color: #c8d4f3;
@@ -484,12 +513,16 @@
     line-height: 1.65;
   }
 
+
   .positive {
-    border-top: 2px solid rgba(0, 245, 212, .65);
+    border-top:
+      2px solid rgba(0, 245, 212, .65);
   }
 
+
   .risk {
-    border-top: 2px solid rgba(255, 0, 127, .65);
+    border-top:
+      2px solid rgba(255, 0, 127, .65);
   }
 
 
@@ -503,6 +536,7 @@
     padding: 22px;
   }
 
+
   .action-card .number {
     flex: 0 0 30px;
 
@@ -515,17 +549,21 @@
   .ready-badge {
     padding: 7px 10px;
 
-    border: 1px solid rgba(255, 0, 127, .4);
+    border:
+      1px solid rgba(255, 0, 127, .4);
 
-    background: rgba(255, 0, 127, .07);
+    background:
+      rgba(255, 0, 127, .07);
 
     color: #ff5bad;
 
     font-size: .68rem;
     font-weight: 900;
     letter-spacing: .08em;
+
     text-transform: uppercase;
   }
+
 
   .outlook-copy {
     margin: 0;
@@ -544,10 +582,13 @@
     grid-template-columns:
       repeat(4, minmax(0, 1fr));
 
-    border: 1px solid rgba(0, 245, 212, .18);
+    border:
+      1px solid rgba(0, 245, 212, .18);
 
-    background: rgba(8, 15, 43, .72);
+    background:
+      rgba(8, 15, 43, .72);
   }
+
 
   .metric-strip > div {
     min-width: 0;
@@ -558,9 +599,11 @@
       1px solid rgba(0, 245, 212, .12);
   }
 
+
   .metric-strip > div:last-child {
     border-right: none;
   }
+
 
   .metric-strip span {
     display: block;
@@ -572,6 +615,7 @@
     font-size: .72rem;
   }
 
+
   .metric-strip strong {
     display: block;
 
@@ -581,10 +625,12 @@
   }
 
 
-  /* ACTION BUTTONS */
+  /* RESULT ACTIONS */
 
-  .actions {
+  .result-actions {
     display: flex;
+
+    align-items: flex-start;
     flex-wrap: wrap;
 
     gap: 10px;
@@ -592,27 +638,18 @@
     padding-top: 4px;
   }
 
-  .action {
-    min-height: 42px;
+
+  .copy-action {
+    flex: 0 0 auto;
+
+    min-height: 40px;
 
     padding: 0 15px;
 
     border:
-      1px solid rgba(255, 255, 255, .13);
+      1px solid rgba(255, 0, 127, .5);
 
     border-radius: 5px;
-
-    background:
-      rgba(255, 255, 255, .035);
-
-    color: #c9d3ec;
-
-    font-weight: 800;
-  }
-
-  .primary-action {
-    border-color:
-      rgba(255, 0, 127, .5);
 
     background:
       linear-gradient(
@@ -623,113 +660,44 @@
 
     color: white;
 
+    font-family: inherit;
+    font-weight: 800;
+
     cursor: pointer;
   }
 
-  .action:disabled {
-    opacity: .45;
-    cursor: not-allowed;
+
+  .copy-action:hover {
+    filter: brightness(1.08);
   }
 
-  .action span {
-    margin-left: 7px;
-
-    color: #8290b3;
-
-    font-size: .63rem;
-    text-transform: uppercase;
-  }
-
-.result-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 4px;
-}
-
-.result-actions button {
-  min-height: 42px;
-  padding: 0 15px;
-  border-radius: 5px;
-  font-weight: 800;
-  font-family: inherit;
-}
-
-.copy-action {
-  border: 1px solid rgba(255, 0, 127, .5);
-  background: linear-gradient(
-    90deg,
-    rgba(148, 0, 211, .7),
-    rgba(255, 0, 127, .7)
-  );
-  color: white;
-  cursor: pointer;
-}
-
-.save-action {
-  border: 1px solid rgba(0, 245, 212, .42);
-  background: rgba(0, 245, 212, .06);
-  color: #00f5d4;
-  cursor: pointer;
-}
-
-.save-action:hover:not(:disabled) {
-  background: rgba(0, 245, 212, .12);
-}
-
-.save-action.saved {
-  opacity: .7;
-  cursor: default;
-}
-
-.export-action {
-  border: 1px solid rgba(255, 255, 255, .13);
-  background: rgba(255, 255, 255, .035);
-  color: #8290b3;
-  cursor: not-allowed;
-}
-
-.export-action span {
-  margin-left: 7px;
-  font-size: .63rem;
-  text-transform: uppercase;
-}
-
-.saved-message {
-  padding: 10px 13px;
-  border: 1px solid rgba(0, 245, 212, .22);
-  background: rgba(0, 245, 212, .05);
-  color: #00f5d4;
-  font-size: .78rem;
-  font-weight: 700;
-}
 
   /* RESPONSIVE */
 
   @media (max-width: 1050px) {
-
     .overview-grid,
     .performance-grid {
       grid-template-columns: 1fr;
     }
 
+
     .metric-strip {
       grid-template-columns:
         repeat(2, minmax(0, 1fr));
     }
-
   }
 
-  @media (max-width: 640px) {
 
+  @media (max-width: 640px) {
     .section-heading {
       flex-direction: column;
     }
 
+
     .metric-strip {
       grid-template-columns: 1fr;
     }
+
 
     .metric-strip > div {
       border-right: none;
@@ -738,10 +706,14 @@
         1px solid rgba(0, 245, 212, .12);
     }
 
+
     .metric-strip > div:last-child {
       border-bottom: none;
     }
 
-  }
 
+    .result-actions {
+      flex-direction: column;
+    }
+  }
 </style>
