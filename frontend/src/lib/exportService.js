@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://127.0.0.1:8000";
+import { API_BASE } from './apiConfig.js';
 
 
 function getFilename(response, fallback) {
@@ -33,7 +33,7 @@ function downloadBlob(blob, filename) {
 
 async function exportAnalysis(endpoint, payload, fallbackFilename) {
   const response = await fetch(
-    `${API_BASE_URL}/exports/${endpoint}`,
+    `${API_BASE}/exports/${endpoint}`,
     {
       method: "POST",
 
