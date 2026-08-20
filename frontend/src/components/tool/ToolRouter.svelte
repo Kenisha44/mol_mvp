@@ -8,6 +8,7 @@
   import ExecutiveMemoTool from '../../features/executive-memo/ExecutiveMemoTool.svelte';
   import KPIHealthTool from '../../features/kpi-health/KPIHealthTool.svelte';
   import WorkspaceView from '../../features/workspace/WorkspaceView.svelte';
+  import PlansView from '../../features/plans/PlansView.svelte';
 
   export let activeTool = 'clarity';
 
@@ -36,6 +37,9 @@
 {:else if activeTool === 'workspace'}
   <WorkspaceView />
 
+{:else if activeTool === 'plans'}
+  <PlansView />
+  
 {:else}
   <p>Tool not found: {activeTool}</p>
 {/if}

@@ -4,26 +4,23 @@
   export let activeTool = 'clarity';
   export let onSelectTool = () => {};
 
-  const workspaceItems = [
-    {
-      id: 'workspace',
-      label: 'Workspace',
-      sub: 'Saved analyses & history',
-      enabled: true
-    },
-    {
-      id: 'exports',
-      label: 'Exports',
-      sub: 'Download your outputs',
-      enabled: false
-    },
-    {
-      id: 'settings',
-      label: 'Settings',
-      sub: 'Preferences & configuration',
-      enabled: false
-    }
-  ];
+const workspaceItems = [
+  {
+    id: 'workspace',
+    label: 'Workspace',
+    sub: 'Saved analyses & history'
+  },
+  {
+    id: 'plans',
+    label: 'Plans & Services',
+    sub: 'Software plans & analytics services'
+  },
+  {
+    id: 'settings',
+    label: 'Settings',
+    sub: 'Preferences & configuration'
+  }
+];
 </script>
 
 <aside class="sidebar">
@@ -61,16 +58,11 @@
     type="button"
     class="nav-item"
     class:active={activeTool === item.id}
-    class:muted={!item.enabled}
-    disabled={!item.enabled}
-    on:click={() => item.enabled && onSelectTool(item.id)}
+    on:click={() => onSelectTool(item.id)}
+    disabled={item.id === 'settings'}
   >
     <strong>{item.label}</strong>
     <span>{item.sub}</span>
-
-    {#if !item.enabled}
-      <small>Coming Soon</small>
-    {/if}
   </button>
 {/each}
   </div>
