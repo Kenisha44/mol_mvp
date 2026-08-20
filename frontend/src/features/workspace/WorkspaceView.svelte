@@ -47,8 +47,13 @@ $: filteredAnalyses = savedAnalyses
     savedAnalyses = getSavedAnalyses();
   }
 
-  function openAnalysis(item) {
+function openAnalysis(item) {
   selectedAnalysis = item;
+
+  console.log(
+    'Opening saved analysis:',
+    selectedAnalysis
+  );
 }
 
 function closeAnalysis() {
@@ -94,6 +99,13 @@ function closeAnalysis() {
     exportingId = null;
   }
 }
+
+function formatFieldName(key) {
+  return key
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
 </script>
 
 <div class="workspace-page">
@@ -120,7 +132,52 @@ function closeAnalysis() {
     {/if}
   </div>
 
+{#if selectedAnalysis}
+  <section class="analysis-detail">
+    <div class="detail-header">
 
+  <div>
+    <p class="eyebrow">
+      SAVED ANALYSIS
+    </p>
+
+    <h2>
+      {selectedAnalysis.title ?? 'Saved Analysis'}
+    </h2>
+
+    <div class="detail-meta">
+      <span>
+        {selectedAnalysis.toolName ?? 'MOL Analysis'}
+      </span>
+
+      {#if selectedAnalysis.status}
+        <span>
+          {selectedAnalysis.status}
+        </span>
+      {/if}
+
+      {#if selectedAnalysis.createdAt}
+        <span>
+          {formatDate(selectedAnalysis.createdAt)}
+        </span>
+      {/if}
+    </div>
+    </section>
+{/if}
+
+{#if selectedAnalysis}
+  <button
+    type="button"
+    class="back-button"
+    on:click={() => selectedAnalysis = null}
+  >
+    ← Back to Workspace
+  </button>
+{/if}
+</div>
+
+
+{#if !selectedAnalysis}
   <div class="stats">
 
     <div class="stat-card">
@@ -141,6 +198,8 @@ function closeAnalysis() {
     </div>
 
   </div>
+{/if}
+
 {#if savedAnalyses.length > 0 && !selectedAnalysis}
 
   <section class="workspace-controls">
@@ -193,13 +252,12 @@ function closeAnalysis() {
       </select>
     </div>
 
-  </section>
+</section>
 
 {/if}
 
 
 {#if selectedAnalysis}
-
   <section class="analysis-viewer">
 
 <div class="viewer-actions">
@@ -421,20 +479,19 @@ function closeAnalysis() {
           </div>
 
 
-        {:else}
+{:else}
 
-          <pre>
-            {JSON.stringify(selectedAnalysis.result, null, 2)}
-          </pre>
+  <pre>
+    {JSON.stringify(selectedAnalysis.result, null, 2)}
+  </pre>
 
-        {/if}
+{/if}
 
       </div>
 
     </div>
 
   </section>
-
 {/if}
 
   {#if !selectedAnalysis && savedAnalyses.length === 0}
@@ -533,11 +590,11 @@ function closeAnalysis() {
             <div class="card-actions">
 
               <button
-                type="button"
-                class="open-button"
-                on:click={() => openAnalysis(item)}
+                  type="button"
+                  class="open-button"
+                  on:click={() => openAnalysis(item)}
                 >
-                Open
+                  Open
                 </button>
 
                 <button
@@ -570,10 +627,7 @@ function closeAnalysis() {
       {/each}
 
     </div>
-
   {/if}
-
-</div>
 
 
 <style>
@@ -1229,6 +1283,197 @@ function closeAnalysis() {
   background: rgba(255, 0, 127, .06);
   color: #ff7dbd;
   font-size: .8rem;
+}
+
+.analysis-detail {
+  padding: 22px;
+
+  border:
+    1px solid rgba(0, 245, 212, .24);
+
+  background:
+    rgba(8, 15, 43, .85);
+}
+
+.analysis-detail h2 {
+  margin-bottom: 8px;
+}
+
+.analysis-detail > p:not(.eyebrow) {
+  margin: 0 0 16px;
+
+  color: #aab8d8;
+}
+
+.close-detail {
+  padding: 8px 12px;
+
+  border:
+    1px solid rgba(255, 0, 127, .35);
+
+  background:
+    rgba(255, 0, 127, .06);
+
+  color: #ff5bad;
+
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.detail-section {
+  margin-top: 18px;
+}
+
+.detail-label {
+  margin: 0 0 8px;
+
+  color: #00f5d4;
+
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+
+  text-transform: uppercase;
+}
+
+.detail-content,
+.result-preview {
+  padding: 16px;
+
+  border:
+    1px solid rgba(255, 255, 255, .08);
+
+  background:
+    rgba(5, 10, 32, .55);
+
+  color: #c8d4f3;
+
+  line-height: 1.6;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.result-preview {
+  margin: 0;
+
+  font-family: inherit;
+  font-size: .8rem;
+}
+
+.saved-result-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.saved-result-item {
+  padding: 16px;
+
+  border:
+    1px solid rgba(255, 255, 255, .08);
+
+  border-left:
+    3px solid #ff007f;
+
+  background:
+    rgba(5, 10, 32, .55);
+}
+
+.saved-result-item strong {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #00f5d4;
+
+  font-size: .72rem;
+  letter-spacing: .06em;
+
+  text-transform: uppercase;
+}
+
+.saved-result-item p {
+  margin: 0;
+
+  color: #d5def2;
+
+  line-height: 1.6;
+
+  white-space: pre-wrap;
+}
+
+.saved-result-item ul {
+  margin: 0;
+  padding-left: 20px;
+
+  color: #d5def2;
+
+  line-height: 1.7;
+}
+
+.detail-header {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: 20px;
+
+  padding-bottom: 18px;
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, .08);
+}
+
+.detail-header h2 {
+  margin-bottom: 10px;
+}
+
+.detail-meta {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+.detail-meta span {
+  padding: 6px 9px;
+
+  border:
+    1px solid rgba(0, 245, 212, .14);
+
+  background:
+    rgba(0, 245, 212, .035);
+
+  color: #8fa3ce;
+
+  font-size: .7rem;
+}
+
+.back-button {
+  flex: 0 0 auto;
+
+  padding: 9px 12px;
+
+  border:
+    1px solid rgba(0, 245, 212, .28);
+
+  background:
+    rgba(0, 245, 212, .05);
+
+  color: #00f5d4;
+
+  font-family: inherit;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background:
+    rgba(0, 245, 212, .11);
 }
 
 @media (max-width: 640px) {

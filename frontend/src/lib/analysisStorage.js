@@ -66,7 +66,9 @@ export function clearSavedAnalyses() {
 }
 
 export function getSavedAnalysis(id) {
-  return getSavedAnalyses().find(
-    (item) => item.id === id
-  );
+  const analyses = getSavedAnalyses();
+
+  return analyses.find(
+    (analysis) => analysis.id === id
+  ) ?? null;
 }
