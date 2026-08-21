@@ -11,6 +11,7 @@ def add_cors_middleware(app):
             "http://127.0.0.1:5174",
             "http://localhost:5175",
             "http://127.0.0.1:5175",
+            "https://mol-mvp.vercel.app",
         ],
         allow_credentials=True,
         allow_methods=["*"],
