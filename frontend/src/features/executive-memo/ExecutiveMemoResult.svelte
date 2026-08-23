@@ -1,120 +1,10 @@
 <script>
-  import { saveAnalysis } from '../../lib/analysisStorage.js';
-
-  import {
-    exportAnalysisPDF,
-    exportAnalysisDOCX
-  } from '../../lib/exportService.js';
-
+  import ExportActions from '../../components/ui/ExportActions.svelte';
+  
   export let result;
   export let onCopy = () => {};
   export let inputText = '';
 
-  let isSaved = false;
-  let savedLabel = '';
-
-  let isExportingPDF = false;
-  let isExportingDOCX = false;
-  let exportError = '';
-
-
-  function saveCurrentAnalysis() {
-    if (isSaved) return;
-
-    saveAnalysis({
-      toolId: 'executive-memo',
-      toolName: 'Executive Memo Studio',
-
-      title:
-        result?.title ||
-        'Executive Memo',
-
-      status:
-        result?.memo_type ||
-        'Executive Ready',
-
-      preview:
-        result?.summary ||
-        result?.background ||
-        inputText.slice(0, 140),
-
-      input: inputText,
-      result
-    });
-
-    isSaved = true;
-    savedLabel = 'Saved to Workspace';
-
-    setTimeout(() => {
-      savedLabel = '';
-    }, 1800);
-  }
-
-
-  function getExportPayload() {
-    return {
-      toolId: 'executive-memo',
-      toolName: 'Executive Memo Studio',
-
-      title:
-        result?.title ||
-        'Executive Memo',
-
-      status:
-        result?.memo_type ||
-        'Executive Ready',
-
-      createdAt: new Date().toISOString(),
-
-      input: inputText,
-
-      result
-    };
-  }
-
-
-  async function handlePDFExport() {
-    if (isExportingPDF) return;
-
-    isExportingPDF = true;
-    exportError = '';
-
-    try {
-      await exportAnalysisPDF(
-        getExportPayload()
-      );
-    } catch (error) {
-      console.error(error);
-
-      exportError =
-        error?.message ||
-        'Unable to export PDF.';
-    } finally {
-      isExportingPDF = false;
-    }
-  }
-
-
-  async function handleDOCXExport() {
-    if (isExportingDOCX) return;
-
-    isExportingDOCX = true;
-    exportError = '';
-
-    try {
-      await exportAnalysisDOCX(
-        getExportPayload()
-      );
-    } catch (error) {
-      console.error(error);
-
-      exportError =
-        error?.message ||
-        'Unable to export DOCX.';
-    } finally {
-      isExportingDOCX = false;
-    }
-  }
 </script>
 
 
@@ -146,67 +36,23 @@
           Copy Memo
         </button>
 
+        <ExportActions
+          toolId="executive-memo"
+          toolName="Executive Memo Studio"
+          title={result?.title || 'Executive Memo'}
+          status={result?.memo_type || 'Executive Ready'}
+          preview={
+            result?.summary ||
+            result?.background ||
+            inputText.slice(0, 140)
+          }
+          input={inputText}
+          {result}
+        />
 
-        <button
-          type="button"
-          class="save-action"
-          class:saved={isSaved}
-          on:click={saveCurrentAnalysis}
-          disabled={isSaved}
-        >
-          {#if isSaved}
-            Saved ✓
-          {:else}
-            Save to Workspace
-          {/if}
-        </button>
-
-
-        <button
-          type="button"
-          class="docx-action"
-          on:click={handleDOCXExport}
-          disabled={isExportingDOCX}
-        >
-          {#if isExportingDOCX}
-            Exporting DOCX...
-          {:else}
-            Export DOCX
-          {/if}
-        </button>
-
-
-        <button
-          type="button"
-          class="pdf-action"
-          on:click={handlePDFExport}
-          disabled={isExportingPDF}
-        >
-          {#if isExportingPDF}
-            Exporting PDF...
-          {:else}
-            Export PDF
-          {/if}
-        </button>
-
-      </div>
+     </div>
 
     </div>
-
-
-    <!-- STATUS MESSAGES -->
-    {#if savedLabel}
-      <div class="saved-message">
-        {savedLabel}
-      </div>
-    {/if}
-
-
-    {#if exportError}
-      <div class="export-error">
-        {exportError}
-      </div>
-    {/if}
 
 
     <!-- META -->

@@ -28,7 +28,7 @@ export const tools = [
     label: 'Insight Generator',
     endpoint: '/insights/generate',
     eyebrow: 'TOOL 03',
-    title: 'Insight Generator Lite',
+    title: 'Insight Generator',
     description: 'Generate executive insights, so-what statements, slide titles, and chart suggestions.',
     placeholder: 'Paste data notes, observations, or a rough summary...',
     emptyTitle: 'Paste raw data notes.',
@@ -81,7 +81,7 @@ Leadership requested recommendations for next quarter.`
 
 {
   id: "kpi-health",
-  eyebrow: "Executive Intelligence",
+  eyebrow: "TOOL 06",
   label: "KPI Health Checker",
   title: "KPI Health Checker",
   description: "Evaluate business health across your KPIs."

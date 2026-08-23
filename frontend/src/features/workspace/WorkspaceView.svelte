@@ -1,10 +1,10 @@
 <script>
   import {
-    getSavedAnalyses,
-    deleteSavedAnalysis,
-    clearSavedAnalyses
-  } from "../../lib/analysisStorage.js";
-
+    getCloudAnalyses,
+    deleteCloudAnalysis,
+    clearCloudAnalyses
+  } from "../../lib/analysisCloudStorage.js";
+  import { onMount } from "svelte";
   import { exportAnalysisAsText } from "../../lib/exportUtils.js";
   import { exportAnalysisPDF } from "../../lib/exportService.js";
 
@@ -43,9 +43,72 @@ $: filteredAnalyses = savedAnalyses
       : second - first;
   });
 
-  function loadAnalyses() {
-    savedAnalyses = getSavedAnalyses();
+async function clearAll() {
+  try {
+    await clearCloudAnalyses();
+
+    savedAnalyses = [];
+    selectedAnalysis = null;
+  } catch (error) {
+    console.error(
+      "Unable to clear Workspace:",
+      error
+    );
+
+    exportError =
+      error?.message ||
+      "Unable to clear your Workspace.";
   }
+}
+
+async function loadAnalyses() {
+  exportError = "";
+
+  try {
+    const cloudAnalyses = await getCloudAnalyses();
+
+    savedAnalyses = cloudAnalyses.map((item) => ({
+      id: item.id,
+
+      toolId: item.tool_id,
+
+      toolName:
+        item.input_data?.toolName ||
+        item.tool_id,
+
+      title:
+        item.title ||
+        "Saved Analysis",
+
+      status:
+        item.input_data?.status ||
+        "Saved",
+
+      preview:
+        item.input_data?.preview ||
+        "",
+
+      input:
+        item.input_data?.text ||
+        "",
+
+      result:
+        item.result_data,
+
+      createdAt:
+        item.created_at
+    }));
+  } catch (error) {
+    console.error(
+      "Unable to load cloud analyses:",
+      error
+    );
+
+    exportError =
+      error?.message ||
+      "Unable to load your Workspace.";
+  }
+}
 
 function openAnalysis(item) {
   selectedAnalysis = item;
@@ -60,13 +123,31 @@ function closeAnalysis() {
   selectedAnalysis = null;
 }
 
-  function deleteAnalysis(id) {
-    savedAnalyses = deleteSavedAnalysis(id);
-  }
+async function deleteAnalysis(id) {
+  try {
+    await deleteCloudAnalysis(id);
 
-  function clearAll() {
-    savedAnalyses = clearSavedAnalyses();
+    savedAnalyses =
+      savedAnalyses.filter(
+        (item) => item.id !== id
+      );
+
+    if (selectedAnalysis?.id === id) {
+      selectedAnalysis = null;
+    }
+  } catch (error) {
+    console.error(
+      "Unable to delete analysis:",
+      error
+    );
+
+    exportError =
+      error?.message ||
+      "Unable to delete analysis.";
   }
+}
+
+
 
   function formatDate(value) {
     if (!value) return "";
@@ -79,7 +160,9 @@ function closeAnalysis() {
     });
   }
 
+  onMount(() => {
   loadAnalyses();
+});
 
   async function downloadPDF(item) {
   if (exportingId) return;
@@ -121,48 +204,57 @@ function formatFieldName(key) {
       </p>
     </div>
 
-    {#if savedAnalyses.length > 0}
-      <button
-        type="button"
-        class="clear-all"
-        on:click={clearAll}
-      >
-        Clear History
-      </button>
-    {/if}
+
   </div>
+
+{#if savedAnalyses.length > 0}
+  <button
+    type="button"
+    class="clear-all"
+    on:click={clearAll}
+  >
+    Clear History
+  </button>
+{/if}
 
 {#if selectedAnalysis}
   <section class="analysis-detail">
+
     <div class="detail-header">
 
-  <div>
-    <p class="eyebrow">
-      SAVED ANALYSIS
-    </p>
+      <div>
+        <p class="eyebrow">
+          SAVED ANALYSIS
+        </p>
 
-    <h2>
-      {selectedAnalysis.title ?? 'Saved Analysis'}
-    </h2>
+        <h2>
+          {selectedAnalysis.title ?? 'Saved Analysis'}
+        </h2>
 
-    <div class="detail-meta">
-      <span>
-        {selectedAnalysis.toolName ?? 'MOL Analysis'}
-      </span>
+        <div class="detail-meta">
 
-      {#if selectedAnalysis.status}
-        <span>
-          {selectedAnalysis.status}
-        </span>
-      {/if}
+          <span>
+            {selectedAnalysis.toolName ?? 'MOL Analysis'}
+          </span>
 
-      {#if selectedAnalysis.createdAt}
-        <span>
-          {formatDate(selectedAnalysis.createdAt)}
-        </span>
-      {/if}
+          {#if selectedAnalysis.status}
+            <span>
+              {selectedAnalysis.status}
+            </span>
+          {/if}
+
+          {#if selectedAnalysis.createdAt}
+            <span>
+              {formatDate(selectedAnalysis.createdAt)}
+            </span>
+          {/if}
+
+        </div>
+      </div>
+
     </div>
-    </section>
+
+  </section>
 {/if}
 
 {#if selectedAnalysis}
@@ -194,7 +286,7 @@ function formatFieldName(key) {
 
     <div class="stat-card">
       <span>Storage</span>
-      <strong>Local</strong>
+      <strong>Cloud</strong>
     </div>
 
   </div>

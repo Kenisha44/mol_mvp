@@ -18,7 +18,10 @@
 
   <div class="main-area">
     <Header />
-    <Workspace {activeTool} />
+    <Workspace
+  {activeTool}
+  onSelectTool={selectTool}
+/>
   </div>
 </div>
 
@@ -26,7 +29,7 @@
   .app-shell {
     min-height: 100vh;
     display: grid;
-    grid-template-columns: 260px minmax(0, 1fr);
+    grid-template-columns: 300px minmax(0, 1fr);
     background: #050817;
     color: white;
   }

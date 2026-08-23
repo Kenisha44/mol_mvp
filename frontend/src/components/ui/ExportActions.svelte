@@ -1,5 +1,6 @@
 <script>
   import { saveAnalysis } from '../../lib/analysisStorage.js';
+  import { saveAnalysisToCloud } from '../../lib/analysisCloudStorage.js';
 
   import {
     exportAnalysisPDF,
@@ -40,12 +41,27 @@
   }
 
 
-  function saveCurrentAnalysis() {
-    if (isSaved || !result) return;
+  async function saveCurrentAnalysis() {
+  if (isSaved || !result) return;
 
-    saveAnalysis(
-      buildPayload()
-    );
+  exportError = '';
+
+  const payload = buildPayload();
+
+  try {
+    saveAnalysis(payload);
+
+    await saveAnalysisToCloud({
+      toolId: payload.toolId,
+      title: payload.title,
+      input: {
+        text: payload.input,
+        toolName: payload.toolName,
+        status: payload.status,
+        preview: payload.preview
+      },
+      result: payload.result
+    });
 
     isSaved = true;
     savedLabel = 'Saved to Workspace';
@@ -53,7 +69,14 @@
     setTimeout(() => {
       savedLabel = '';
     }, 1800);
+  } catch (error) {
+    console.error(error);
+
+    exportError =
+      error?.message ||
+      'Unable to save analysis.';
   }
+}
 
 
   async function handlePDFExport() {
