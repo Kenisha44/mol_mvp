@@ -362,7 +362,10 @@ $: selectedTool =
 
 
   <div class="tool-workspace">
-    <ToolRouter {activeTool} />
+  <ToolRouter
+  {activeTool}
+  onSelectTool={onSelectTool}
+  />
   </div>
 
 </section>

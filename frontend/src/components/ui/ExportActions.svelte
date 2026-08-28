@@ -7,6 +7,14 @@
     exportAnalysisDOCX
   } from '../../lib/exportService.js';
 
+  import {
+    canExport,
+    recordExportUsage
+  } from '../../lib/usageService.js';
+
+  import UsageLimitNotice
+  from './UsageLimitNotice.svelte';
+
   export let toolId = '';
   export let toolName = '';
   export let title = 'Saved Analysis';
@@ -18,6 +26,7 @@
   export let showSave = true;
   export let showPDF = true;
   export let showDOCX = true;
+  export let onUpgrade = () => {};
 
   let isSaved = false;
   let savedLabel = '';
@@ -26,6 +35,10 @@
   let isExportingDOCX = false;
   let exportError = '';
 
+  $: exportLimitReached =
+    exportError?.includes(
+      'You have reached your 3 free exports'
+    );
 
   function buildPayload() {
     return {
@@ -82,13 +95,24 @@
   async function handlePDFExport() {
     if (isExportingPDF || !result) return;
 
-    isExportingPDF = true;
     exportError = '';
+
+    const usageCheck = canExport();
+
+    if (!usageCheck.allowed) {
+      exportError = usageCheck.reason;
+      return;
+    }
+
+    isExportingPDF = true;
 
     try {
       await exportAnalysisPDF(
         buildPayload()
       );
+
+      await recordExportUsage();
+
     } catch (error) {
       console.error(error);
 
@@ -102,25 +126,36 @@
 
 
   async function handleDOCXExport() {
-    if (isExportingDOCX || !result) return;
+  if (isExportingDOCX || !result) return;
 
-    isExportingDOCX = true;
-    exportError = '';
+  exportError = '';
 
-    try {
-      await exportAnalysisDOCX(
-        buildPayload()
-      );
-    } catch (error) {
-      console.error(error);
+  const usageCheck = canExport();
 
-      exportError =
-        error?.message ||
-        'Unable to export DOCX.';
-    } finally {
-      isExportingDOCX = false;
-    }
+  if (!usageCheck.allowed) {
+    exportError = usageCheck.reason;
+    return;
   }
+
+  isExportingDOCX = true;
+
+  try {
+    await exportAnalysisDOCX(
+      buildPayload()
+    );
+
+    await recordExportUsage();
+
+  } catch (error) {
+    console.error(error);
+
+    exportError =
+      error?.message ||
+      'Unable to export DOCX.';
+  } finally {
+    isExportingDOCX = false;
+  }
+}
 </script>
 
 
@@ -184,10 +219,20 @@
 {/if}
 
 
-{#if exportError}
+{#if exportLimitReached}
+
+  <UsageLimitNotice
+    message="You've used all 3 exports included with your Free plan. Upgrade to MOL Pro for unlimited exports."
+    type="export"
+    {onUpgrade}
+  />
+
+{:else if exportError}
+
   <div class="export-error">
     {exportError}
   </div>
+
 {/if}
 
 

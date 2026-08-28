@@ -3,12 +3,20 @@
     import KPIHealthResult from "./KPIHealthResult.svelte";
     import LoadingState from "../../components/ui/LoadingState.svelte";
     import EmptyState from "../../components/ui/EmptyState.svelte";
+    import UsageLimitNotice
+    from '../../components/ui/UsageLimitNotice.svelte';
 
+    export let onUpgrade = () => {};
     let data = "";
     let loading = false;
     let error = "";
     let result = null;
     let copiedLabel = "";
+
+    $: analysisLimitReached =
+    error?.includes(
+        'You have reached your 5 free analyses'
+    );
 
     $: lineCount = data.trim()
         ? data.trim().split(/\r?\n/).filter(Boolean).length
@@ -69,8 +77,11 @@
                 data
             });
         } catch (err) {
-            console.error(err);
-            error = "Unable to analyze KPI health. Make sure the backend is running.";
+        console.error(err);
+
+        error =
+            err?.message ||
+            'Unable to analyze KPI health. Please try again.';
         } finally {
             loading = false;
         }
@@ -196,10 +207,20 @@
         </div>
 
 
-        {#if error}
-            <div class="message error">
-                {error}
-            </div>
+        {#if analysisLimitReached}
+
+        <UsageLimitNotice
+            message="You've used all 5 analyses included with your Free plan. Upgrade to MOL Pro for up to 100 analyses each month."
+            type="analysis"
+            {onUpgrade}
+        />
+
+        {:else if error}
+
+        <div class="error-message">
+            {error}
+        </div>
+
         {/if}
 
         {#if copiedLabel}

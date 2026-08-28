@@ -3,7 +3,10 @@
   import { generateDashboardNarrative } from './dashboardNarrativeService.js';
   import LoadingState from '../../components/ui/LoadingState.svelte';
   import EmptyState from '../../components/ui/EmptyState.svelte';
+  import UsageLimitNotice
+    from '../../components/ui/UsageLimitNotice.svelte';
 
+  export let onUpgrade = () => {};
   export let tool;
 
   let inputText = '';
@@ -11,6 +14,11 @@
   let loading = false;
   let error = '';
   let copiedLabel = '';
+
+  $: analysisLimitReached =
+    error?.includes(
+      'You have reached your 5 free analyses'
+    );
 
   $: signalCount = inputText.trim()
     ? inputText.trim().split(/\r?\n|(?<=[.!?])\s+/).filter(Boolean).length
@@ -88,9 +96,11 @@
       result = data;
     } catch (err) {
       console.error(err);
+
       error =
-        'Could not generate the dashboard narrative. Make sure the backend is running.';
-    } finally {
+        err?.message ||
+        'Unable to complete the analysis. Please try again.';
+    }finally {
       loading = false;
     }
   }
@@ -184,11 +194,21 @@
       {/if}
     </div>
 
-    {#if error}
-      <div class="message error">
-        {error}
-      </div>
-    {/if}
+    {#if analysisLimitReached}
+
+    <UsageLimitNotice
+      message="You've used all 5 analyses included with your Free plan. Upgrade to MOL Pro for up to 100 analyses each month."
+      type="analysis"
+      {onUpgrade}
+    />
+
+  {:else if error}
+
+    <div class="error-message">
+      {error}
+    </div>
+
+  {/if}
 
     {#if copiedLabel}
       <div class="message success">

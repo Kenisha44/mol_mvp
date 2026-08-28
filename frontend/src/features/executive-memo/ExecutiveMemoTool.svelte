@@ -1,7 +1,10 @@
 <script>
     import { generateExecutiveMemo } from "./executiveMemoService.js";
     import ExecutiveMemoResult from "./ExecutiveMemoResult.svelte";
+    import UsageLimitNotice
+    from '../../components/ui/UsageLimitNotice.svelte';
 
+    export let onUpgrade = () => {};
     let notes = "";
     let memoType = "Weekly Business Review";
     let audience = "Executive Team";
@@ -11,6 +14,11 @@
     let error = "";
     let result = null;
     let copiedLabel = "";
+
+    $: analysisLimitReached =
+    error?.includes(
+        'You have reached your 5 free analyses'
+    );
 
     $: wordCount = notes.trim()
         ? notes.trim().split(/\s+/).length
@@ -54,8 +62,11 @@
                 tone
             });
         } catch (err) {
-            console.error(err);
-            error = "Unable to generate memo. Make sure the backend is running.";
+        console.error(err);
+
+        error =
+            err?.message ||
+            'Unable to complete the analysis. Please try again.';
         } finally {
             loading = false;
         }
@@ -222,10 +233,20 @@
 
         </div>
 
-        {#if error}
-            <div class="message error">
-                {error}
-            </div>
+        {#if analysisLimitReached}
+
+        <UsageLimitNotice
+            message="You've used all 5 analyses included with your Free plan. Upgrade to MOL Pro for up to 100 analyses each month."
+            type="analysis"
+            {onUpgrade}
+        />
+
+        {:else if error}
+
+        <div class="error-message">
+            {error}
+        </div>
+
         {/if}
 
         {#if copiedLabel}

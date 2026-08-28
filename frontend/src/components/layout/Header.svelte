@@ -1,5 +1,9 @@
 <script>
   import { user } from '../../stores/authStore.js';
+  import {
+  profile,
+  profileLoading
+} from '../../stores/profileStore.js';
   import { supabase } from '../../lib/supabaseClient.js';
 
   let accountOpen = false;
@@ -19,6 +23,24 @@
   function toggleAccount() {
     accountOpen = !accountOpen;
   }
+
+$: currentPlan =
+  $profile?.plan ?? 'free';
+
+$: isPro =
+  currentPlan === 'pro';
+
+$: analysisCount =
+  Number($profile?.analysis_count ?? 0);
+
+$: exportCount =
+  Number($profile?.export_count ?? 0);
+
+$: analysisLimit =
+  isPro ? 100 : 5;
+
+$: exportLimit =
+  isPro ? null : 3;
 
 </script>
 
@@ -204,22 +226,111 @@
       </div>
 
 
-      <div class="account-plan">
+    <div
+  class="account-plan"
+  class:pro-plan={isPro}
+>
 
-        <div>
-          <span class="plan-label">
-            CURRENT PLAN
-          </span>
+  <div>
+    <span class="plan-label">
+      CURRENT PLAN
+    </span>
 
-          <strong>Free</strong>
-        </div>
+    <strong>
+      {#if $profileLoading}
+        Loading...
+      {:else}
+        {isPro ? 'MOL Pro' : 'Free'}
+      {/if}
+    </strong>
+  </div>
 
-        <span class="plan-badge">
-          MOL
-        </span>
+  <span
+    class="plan-badge"
+    class:pro-badge={isPro}
+  >
+    {isPro ? 'PRO' : 'FREE'}
+  </span>
 
+</div>
+
+<div class="account-usage">
+
+  <div class="usage-heading">
+    <span>MONTHLY USAGE</span>
+
+    {#if !isPro}
+      <span>FREE PLAN</span>
+    {:else}
+      <span>PRO PLAN</span>
+    {/if}
+  </div>
+
+
+  <div class="usage-item">
+
+    <div class="usage-copy">
+      <span>Analyses</span>
+
+      <strong>
+        {analysisCount} / {analysisLimit}
+      </strong>
+    </div>
+
+    <div class="usage-track">
+      <div
+        class="usage-fill"
+        style={`width: ${Math.min(
+          (analysisCount / analysisLimit) * 100,
+          100
+        )}%`}
+      ></div>
+    </div>
+
+  </div>
+
+
+  <div class="usage-item">
+
+    <div class="usage-copy">
+      <span>Exports</span>
+
+      <strong>
+        {#if isPro}
+          Unlimited
+        {:else}
+          {exportCount} / {exportLimit}
+        {/if}
+      </strong>
+    </div>
+
+    {#if !isPro}
+      <div class="usage-track">
+        <div
+          class="usage-fill export-fill"
+          style={`width: ${Math.min(
+            (exportCount / exportLimit) * 100,
+            100
+          )}%`}
+        ></div>
       </div>
+    {/if}
 
+  </div>
+
+
+  {#if !isPro}
+    <div class="upgrade-hint">
+      <span>✦</span>
+
+      <p>
+        Upgrade to MOL Pro for 100 analyses
+        and unlimited exports each month.
+      </p>
+    </div>
+  {/if}
+
+</div>
 
       <div class="account-note">
         <span>☁</span>
@@ -880,4 +991,152 @@
   width: min(340px, calc(100vw - 48px));
 }
   }
+
+.account-usage {
+  margin-top: 11px;
+
+  padding: 13px;
+
+  border:
+    1px solid rgba(255, 255, 255, .065);
+
+  background:
+    rgba(255, 255, 255, .018);
+}
+
+
+.usage-heading {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 13px;
+
+  color: #7184ad;
+
+  font-size: .54rem;
+  font-weight: 900;
+
+  letter-spacing: .09em;
+}
+
+
+.usage-item + .usage-item {
+  margin-top: 12px;
+}
+
+
+.usage-copy {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 6px;
+}
+
+
+.usage-copy span {
+  color: #9cabc8;
+
+  font-size: .65rem;
+}
+
+
+.usage-copy strong {
+  color: #dfe7f8;
+
+  font-size: .65rem;
+}
+
+
+.usage-track {
+  height: 4px;
+
+  overflow: hidden;
+
+  background:
+    rgba(255, 255, 255, .07);
+}
+
+
+.usage-fill {
+  height: 100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      #9400d3,
+      #00f5d4
+    );
+
+  transition:
+    width .3s ease;
+}
+
+
+.export-fill {
+  background:
+    linear-gradient(
+      90deg,
+      #9400d3,
+      #ff007f
+    );
+}
+
+
+.upgrade-hint {
+  display: flex;
+
+  gap: 8px;
+
+  margin-top: 13px;
+
+  padding-top: 11px;
+
+  border-top:
+    1px solid rgba(255, 255, 255, .06);
+}
+
+
+.upgrade-hint > span {
+  color: #ff5bad;
+}
+
+
+.upgrade-hint p {
+  margin: 0;
+
+  color: #8596b9;
+
+  font-size: .61rem;
+
+  line-height: 1.45;
+}
+
+
+.account-plan.pro-plan {
+  border-color:
+    rgba(255, 0, 127, .28);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(148, 0, 211, .10),
+      rgba(255, 0, 127, .07)
+    );
+}
+
+
+.plan-badge.pro-badge {
+  border-color:
+    rgba(255, 0, 127, .38);
+
+  color: #ff5bad;
+}  
 </style>

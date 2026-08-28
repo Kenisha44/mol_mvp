@@ -1,5 +1,9 @@
 import { writable } from 'svelte/store';
 import { supabase } from '../lib/supabaseClient.js';
+import {
+  loadProfile,
+  clearProfile
+} from './profileStore.js';
 
 export const passwordRecovery = writable(false);
 export const user = writable(null);
@@ -16,13 +20,30 @@ export async function initializeAuth() {
   }
 
   user.set(session?.user ?? null);
+
+  if (session?.user) {
+    await loadProfile();
+  } else {
+    clearProfile();
+  }
+  
   authLoading.set(false);
 
-  supabase.auth.onAuthStateChange((event, session) => {
-    user.set(session?.user ?? null);
+  supabase.auth.onAuthStateChange(
+    async (event, session) => {
   
-    if (event === 'PASSWORD_RECOVERY') {
-      passwordRecovery.set(true);
+      user.set(session?.user ?? null);
+  
+      if (event === 'PASSWORD_RECOVERY') {
+        passwordRecovery.set(true);
+      }
+  
+      if (session?.user) {
+        await loadProfile();
+      } else {
+        clearProfile();
+      }
+  
     }
-  });
+  );
 }

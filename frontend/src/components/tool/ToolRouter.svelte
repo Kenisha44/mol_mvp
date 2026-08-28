@@ -10,6 +10,7 @@
   import WorkspaceView from '../../features/workspace/WorkspaceView.svelte';
   import PlansView from '../../features/plans/PlansView.svelte';
 
+  export let onSelectTool = () => {};
   export let activeTool = 'clarity';
 
   $: selectedTool =
@@ -17,22 +18,40 @@
 </script>
 
 {#if activeTool === 'clarity'}
-  <ClarityTool tool={selectedTool} />
+  <ClarityTool
+  tool={selectedTool}
+  onUpgrade={() => onSelectTool('plans')}
+/>
 
 {:else if activeTool === 'kpi-cleaner'}
-  <KpiCleanerTool tool={selectedTool} />
+  <KpiCleanerTool
+  tool={selectedTool}
+  onUpgrade={() => onSelectTool('plans')}
+/>
 
 {:else if activeTool === 'insights'}
-  <InsightTool tool={selectedTool} />
+  <InsightTool
+  tool={selectedTool}
+  onUpgrade={() => onSelectTool('plans')}
+/>
 
 {:else if activeTool === 'dashboard'}
-  <DashboardNarrativeTool tool={selectedTool} />
+  <DashboardNarrativeTool
+  tool={selectedTool}
+  onUpgrade={() => onSelectTool('plans')}
+/>
 
 {:else if activeTool === 'executive-memo'}
-  <ExecutiveMemoTool tool={selectedTool} />
+  <ExecutiveMemoTool
+  tool={selectedTool}
+  onUpgrade={() => onSelectTool('plans')}
+/>
 
 {:else if activeTool === 'kpi-health'}
-  <KPIHealthTool tool={selectedTool} />
+  <KPIHealthTool
+  tool={selectedTool}
+  onUpgrade={() => onSelectTool('plans')}
+/>
 
 {:else if activeTool === 'workspace'}
   <WorkspaceView />
